@@ -11,7 +11,6 @@ import 'package:path/path.dart' as path;
 import 'package:uuid/uuid.dart';
 
 import '../../view/screens/accounts/login.dart';
-import '../../view/screens/accounts/verify.dart';
 
 class AuthRepository {
   static FirebaseAuth auth = FirebaseAuth.instance;
@@ -49,7 +48,7 @@ class AuthRepository {
     }
   }
 
-  static Future<void> signUp(String name, int id, int numberPhone) async {
+  static Future<void> signUp(String name, int id, int numberPhone,String userId) async {
     uid = const Uuid().v4();
     await data.doc(uid).set({
       'id': uid,
@@ -57,16 +56,16 @@ class AuthRepository {
       'cccd': id,
       'numberphone': numberPhone,
       'image': imageUrlList,
-      'uid': FirebaseAuth.instance.currentUser!.uid,
+      'uid': userId,
     });
   }
 
-  static Future<void> upImage() async {
-    if (imageFileList!.isNotEmpty) {
-      for (var images in imageFileList!) {
+  static Future<void> upImage(List<XFile?> imageFileList) async {
+    if (imageFileList.isNotEmpty) {
+      for (var images in imageFileList) {
         firebase_storage.Reference ref = firebase_storage
             .FirebaseStorage.instance
-            .ref('user_image/${path.basename(images.path)}');
+            .ref('user_image/${path.basename(images!.path)}');
 
         await ref.putFile(File(images.path)).whenComplete(() async {
           await ref.getDownloadURL().then((value) {

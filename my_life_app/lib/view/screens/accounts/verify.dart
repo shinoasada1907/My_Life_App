@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, avoid_print
+// ignore_for_file: use_build_context_synchronously, avoid_print, must_be_immutable
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -6,12 +6,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_life_app/bloc/auth_cubit/auth_cubit.dart';
 import 'package:my_life_app/models/style.dart';
 import 'package:my_life_app/view/screens/accounts/login.dart';
+import 'package:my_life_app/view/screens/accounts/signup.dart';
 import 'package:pinput/pinput.dart';
 
 import '../../widgets/auth_widget.dart';
 
 class VerifySMS extends StatefulWidget {
-  const VerifySMS({Key? key}) : super(key: key);
+  VerifySMS({this.processing, Key? key}) : super(key: key);
+  bool? processing;
 
   @override
   State<VerifySMS> createState() => _VerifySMSState();
@@ -97,8 +99,18 @@ class _VerifySMSState extends State<VerifySMS> {
                                     verificationId: LoginScreen.verifyID,
                                     smsCode: code);
                             await auth.signInWithCredential(credential);
-                            Navigator.pushReplacementNamed(
-                                context, '/home_screen');
+                            widget.processing == true
+                                ? Navigator.pushReplacementNamed(
+                                    context, '/home_screen')
+                                : Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => SignUpScreen(
+                                        numberPhone: FirebaseAuth
+                                            .instance.currentUser!.phoneNumber,
+                                      ),
+                                    ),
+                                  );
                           } catch (e) {
                             print('Sai OTP');
                           }

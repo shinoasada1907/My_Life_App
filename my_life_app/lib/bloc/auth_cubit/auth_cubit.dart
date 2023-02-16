@@ -1,32 +1,36 @@
 // ignore_for_file: depend_on_referenced_packages, avoid_print, avoid_single_cascade_in_expression_statements
 
 import 'package:bloc/bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:my_life_app/models/user.dart';
 import 'package:my_life_app/repository/auth/auth_repo.dart';
-import 'package:my_life_app/view/screens/main/home.dart';
-
-import '../../view/screens/accounts/login.dart';
 import '../../view/screens/accounts/verify.dart';
 
 part 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit() : super(AuthInitial());
+  int? phoneNumber;
 
-  Future<void> upLoadImage() async {
+  setphone(String phone) => UserApp.setphone(phone);
+  getphone() => UserApp.getPhone();
+
+  Future<void> upLoadImage(List<XFile?> imageFileList) async {
     try {
-      AuthRepository.upImage();
+      AuthRepository.upImage(imageFileList);
     } catch (e) {
       print(e.toString());
     }
   }
 
-  Future<void> signUp(
-      BuildContext context, String name, int id, int numberPhone) async {
-    await loginOTPPhone(context, numberPhone).whenComplete(() => upLoadImage()
-        .whenComplete(() => AuthRepository.signUp(name, id, numberPhone)));
+  Future<void> signUp(BuildContext context, String name, int id,
+      int numberPhone, List<XFile?> imageFileList, String userId) async {
+    await upLoadImage(imageFileList)
+        .whenComplete(
+            () => AuthRepository.signUp(name, id, numberPhone, userId))
+        .whenComplete(
+            () => Navigator.pushReplacementNamed(context, '/home_screen'));
   }
 
   setimage(XFile image) {
@@ -38,7 +42,9 @@ class AuthCubit extends Cubit<AuthState> {
         .whenComplete(() => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const VerifySMS(),
+              builder: (context) => VerifySMS(
+                processing: false,
+              ),
             )));
   }
 

@@ -2,19 +2,18 @@
 import 'package:image_picker/image_picker.dart';
 
 class UserApp {
-  String name;
-  int id;
-  int numberPhone;
-  List<XFile?> imageList;
-  UserApp(
-    this.name,
-    this.id,
-    this.numberPhone,
-    this.imageList,
-  );
+  static String? name;
+  static int? id;
+  static String numberPhone = '';
+  static List<XFile?>? imageList;
+  UserApp();
 
-  getName() => name;
-  getId() => id;
-  getPhone() => numberPhone;
-  getImageList() => imageList;
+  static void setphone(String phone) {
+    numberPhone = phone;
+  }
+
+  static String getName() => name!;
+  static int getId() => id!;
+  static String getPhone() => numberPhone;
+  static List<XFile?> getImageList() => imageList!;
 }

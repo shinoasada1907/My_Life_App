@@ -1,7 +1,7 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, must_be_immutable
 
 import 'dart:io';
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,7 +11,8 @@ import '../../../models/style.dart';
 import '../../widgets/auth_widget.dart';
 
 class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({super.key});
+  SignUpScreen({this.numberPhone, super.key});
+  String? numberPhone = '';
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -56,7 +57,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.initState();
     name = TextEditingController();
     cccd = TextEditingController();
-    numberPhone = TextEditingController();
+    numberPhone = TextEditingController(text: widget.numberPhone);
     setState(() {
       image = null;
       image1 = null;
@@ -173,6 +174,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             margin: EdgeInsets.only(top: size.height * 0.02),
                             child: TextFormField(
                               keyboardType: TextInputType.phone,
+                              // initialValue: numberPhone!.text,
                               controller: numberPhone,
                               validator: (value) {
                                 if (value!.isEmpty) {
@@ -261,16 +263,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       context,
                                       name!.text,
                                       int.parse(cccd!.text),
-                                      int.parse(numberPhone!.text))
+                                      int.parse(numberPhone!.text),
+                                      imageFileList!.toList(),
+                                      FirebaseAuth.instance.currentUser!.uid)
                                   .whenComplete(() {
                                 setState(() {
-                                  name!.text = '';
-                                  cccd!.text = '';
-                                  numberPhone!.text = '';
+                                  name!.dispose();
+                                  cccd!.dispose();
+                                  numberPhone!.dispose();
                                   image = null;
                                   image1 = null;
                                 });
-                                formkey.currentState!.reset();
                               });
                               print(imageFileList.toString());
                             },

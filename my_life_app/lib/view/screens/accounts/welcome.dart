@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:my_life_app/models/style.dart';
-import 'package:my_life_app/view/screens/accounts/login.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -85,7 +84,7 @@ class WelcomeScreen extends StatelessWidget {
                       GestureDetector(
                         onTap: () {
                           Navigator.pushReplacementNamed(
-                              context, '/signup_screen');
+                              context, '/number_phone_screen');
                           // Navigator.push(
                           //   context,
                           //   MaterialPageRoute(

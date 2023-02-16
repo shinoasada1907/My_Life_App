@@ -1,24 +1,29 @@
-// ignore_for_file: body_might_complete_normally_nullable
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_life_app/bloc/auth_cubit/auth_cubit.dart';
-import 'package:my_life_app/models/style.dart';
+import 'package:my_life_app/view/screens/accounts/login.dart';
+import 'package:my_life_app/view/screens/accounts/signup.dart';
 import 'package:my_life_app/view/screens/accounts/verify.dart';
-import 'package:my_life_app/view/widgets/auth_widget.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
-  static String verifyID = '';
+import '../../../bloc/auth_cubit/auth_cubit.dart';
+import '../../../models/style.dart';
+import '../../widgets/auth_widget.dart';
+
+class NumberPhone extends StatefulWidget {
+  const NumberPhone({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<NumberPhone> createState() => _NumberPhoneState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  var phone = '';
+class _NumberPhoneState extends State<NumberPhone> {
+  TextEditingController? numberphone;
+  @override
+  void initState() {
+    super.initState();
+    numberphone = TextEditingController();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          'Đăng nhập',
+                          'Đăng ký',
                           style: TextStyle(
                             fontSize: 30,
                             color: Colors.white,
@@ -78,26 +83,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(50),
                     ),
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
+                        SizedBox(
                           width: size.width * 0.7,
-                          margin: EdgeInsets.only(top: size.height * 0.07),
                           child: TextFormField(
                             keyboardType: TextInputType.phone,
-                            validator: (value) {},
-                            onChanged: (value) {
-                              phone = value;
-                            },
+                            controller: numberphone,
                             decoration: textFormDecoration.copyWith(),
                           ),
                         ),
                         GestureDetector(
                           onTap: () async {
                             await FirebaseAuth.instance.verifyPhoneNumber(
-                              phoneNumber: '+84${phone.toString()}',
+                              phoneNumber: '+84 ${numberphone!.text}',
                               verificationCompleted:
                                   (PhoneAuthCredential credential) async {
-                                FirebaseAuth.instance
+                                await FirebaseAuth.instance
                                     .signInWithCredential(credential);
                               },
                               verificationFailed: (FirebaseAuthException e) {},
@@ -108,19 +110,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => VerifySMS(
-                                        processing: true,
+                                        processing: false,
                                       ),
                                     ));
                               },
                               codeAutoRetrievalTimeout:
                                   (String verificationId) {},
                             );
-                            // context
-                            //     .read<AuthCubit>()
-                            //     .loginOTPPhone(context, phone);
                           },
                           child: Container(
-                            margin: EdgeInsets.only(top: size.height * 0.01),
+                            margin: EdgeInsets.only(top: size.height * 0.015),
                             width: size.width * 0.7,
                             height: size.height * 0.07,
                             decoration: BoxDecoration(
@@ -129,45 +128,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             child: const Center(
                               child: Text(
-                                'Đăng nhập',
+                                'Đăng ký',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.only(top: 8, bottom: 8),
-                          child: Text(
-                            'Hoặc',
-                            style: TextStyle(
-                                fontSize: 15, fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushReplacementNamed(
-                                context, '/signup_screen');
-                          },
-                          child: Container(
-                            width: size.width * 0.7,
-                            height: size.height * 0.07,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(25),
-                              border: Border.all(
-                                width: 2,
-                                color: AppStyle.mainColor,
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'Google',
-                                style: TextStyle(
-                                  color: AppStyle.mainColor,
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600,
                                 ),
