@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_life_app/bloc/auth_cubit/auth_cubit.dart';
 import 'package:my_life_app/models/style.dart';
-import 'package:my_life_app/view/screens/accounts/login.dart';
-import 'package:my_life_app/view/screens/accounts/signup.dart';
 import 'package:pinput/pinput.dart';
 
 import '../../widgets/auth_widget.dart';
@@ -14,16 +12,24 @@ import '../../widgets/auth_widget.dart';
 class VerifySMS extends StatefulWidget {
   VerifySMS({this.processing, Key? key}) : super(key: key);
   bool? processing;
+  static String? verifyID;
+  String? smscode;
 
   @override
   State<VerifySMS> createState() => _VerifySMSState();
 }
 
 class _VerifySMSState extends State<VerifySMS> {
+  TextEditingController? code;
   final FirebaseAuth auth = FirebaseAuth.instance;
   @override
+  void initState() {
+    super.initState();
+    code = TextEditingController(text: widget.smscode);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    var code = '';
     return BlocBuilder<AuthCubit, AuthState>(
       builder: (context, state) {
         return Scaffold(
@@ -75,9 +81,7 @@ class _VerifySMSState extends State<VerifySMS> {
                     length: 6,
                     submittedPinTheme: submittedPinTheme,
                     showCursor: true,
-                    onChanged: (value) {
-                      code = value;
-                    },
+                    controller: code,
                   ),
                   const SizedBox(
                     height: 20,
@@ -90,30 +94,9 @@ class _VerifySMSState extends State<VerifySMS> {
                             backgroundColor: Colors.green.shade600,
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10))),
-                        onPressed: () async {
-                          try {
-                            // print(LoginScreen.verifyID);
-                            // context.watch<AuthCubit>().verify(code, context);
-                            PhoneAuthCredential credential =
-                                PhoneAuthProvider.credential(
-                                    verificationId: LoginScreen.verifyID,
-                                    smsCode: code);
-                            await auth.signInWithCredential(credential);
-                            widget.processing == true
-                                ? Navigator.pushReplacementNamed(
-                                    context, '/home_screen')
-                                : Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => SignUpScreen(
-                                        numberPhone: FirebaseAuth
-                                            .instance.currentUser!.phoneNumber,
-                                      ),
-                                    ),
-                                  );
-                          } catch (e) {
-                            print('Sai OTP');
-                          }
+                        onPressed: () {
+                          context.read<AuthCubit>().verify(code!.text, context,
+                              VerifySMS.verifyID!, widget.processing!);
                         },
                         child: const Text("Verify Phone Number")),
                   ),

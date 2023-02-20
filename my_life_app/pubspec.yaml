@@ -48,6 +48,7 @@ dependencies:
   path: ^1.8.2
   firebase_storage: ^11.0.11
   uuid: ^3.0.7
+  animated_bottom_navigation_bar: ^1.1.0+1
 
 dev_dependencies:
   flutter_test:

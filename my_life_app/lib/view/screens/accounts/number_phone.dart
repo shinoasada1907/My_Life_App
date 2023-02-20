@@ -1,10 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_life_app/view/screens/accounts/login.dart';
-import 'package:my_life_app/view/screens/accounts/signup.dart';
-import 'package:my_life_app/view/screens/accounts/verify.dart';
 
 import '../../../bloc/auth_cubit/auth_cubit.dart';
 import '../../../models/style.dart';
@@ -19,10 +14,13 @@ class NumberPhone extends StatefulWidget {
 
 class _NumberPhoneState extends State<NumberPhone> {
   TextEditingController? numberphone;
+  String? verifyID;
+  String code = '';
   @override
   void initState() {
     super.initState();
     numberphone = TextEditingController();
+    verifyID = '';
   }
 
   @override
@@ -94,29 +92,10 @@ class _NumberPhoneState extends State<NumberPhone> {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () async {
-                            await FirebaseAuth.instance.verifyPhoneNumber(
-                              phoneNumber: '+84 ${numberphone!.text}',
-                              verificationCompleted:
-                                  (PhoneAuthCredential credential) async {
-                                await FirebaseAuth.instance
-                                    .signInWithCredential(credential);
-                              },
-                              verificationFailed: (FirebaseAuthException e) {},
-                              codeSent:
-                                  (String verificationId, int? resendToken) {
-                                LoginScreen.verifyID = verificationId;
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => VerifySMS(
-                                        processing: false,
-                                      ),
-                                    ));
-                              },
-                              codeAutoRetrievalTimeout:
-                                  (String verificationId) {},
-                            );
+                          onTap: () {
+                            context
+                                .read<AuthCubit>()
+                                .loginOTPPhone(context, numberphone!.text);
                           },
                           child: Container(
                             margin: EdgeInsets.only(top: size.height * 0.015),

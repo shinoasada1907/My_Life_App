@@ -4,13 +4,13 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:my_life_app/models/user.dart';
+import 'package:my_life_app/view/screens/accounts/verify.dart';
 import 'package:path/path.dart' as path;
 import 'package:uuid/uuid.dart';
-
-import '../../view/screens/accounts/login.dart';
 
 class AuthRepository {
   static FirebaseAuth auth = FirebaseAuth.instance;
@@ -20,35 +20,13 @@ class AuthRepository {
       FirebaseFirestore.instance.collection('UserAccount');
 
   static ImagePicker imagePicker = ImagePicker();
-  static List<XFile>? imageFileList = [];
   static List<String> imageUrlList = [];
   static XFile? imageFile;
   static dynamic pickedImageError;
   static late String uid;
 
-  static void set(XFile image) {
-    imageFileList!.add(image);
-  }
-
-  static List<XFile?> getimage() {
-    return imageFileList!;
-  }
-
-  static Future<void> pickImageFromCamera() async {
-    try {
-      final pickedImage = await imagePicker.pickImage(
-          source: ImageSource.camera,
-          maxHeight: 300,
-          maxWidth: 300,
-          imageQuality: 95);
-      imageFileList!.add(pickedImage!);
-    } catch (e) {
-      pickedImageError = e;
-      print(pickedImageError);
-    }
-  }
-
-  static Future<void> signUp(String name, int id, int numberPhone,String userId) async {
+  static Future<void> signUp(String name, int id, int numberPhone,
+      String userId, var imageUrlList) async {
     uid = const Uuid().v4();
     await data.doc(uid).set({
       'id': uid,
@@ -86,15 +64,59 @@ class AuthRepository {
       },
       verificationFailed: (FirebaseAuthException e) {},
       codeSent: (String verificationId, int? resendToken) {
-        LoginScreen.verifyID = verificationId;
+        VerifySMS.verifyID = verificationId;
       },
       codeAutoRetrievalTimeout: (String verificationId) {},
     );
   }
 
-  static Future<void> verify(var code) async {
+  static Future<void> verify(var code, var verifyID) async {
     PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: LoginScreen.verifyID, smsCode: code);
+        verificationId: verifyID.toString(), smsCode: code.toString());
     await auth.signInWithCredential(credential);
+  }
+
+  Future<void> resendVerificationCode(
+      String phoneNumber, String verificationId) async {
+    // Yêu cầu Firebase gửi lại mã OTP mới
+    PhoneVerificationCompleted verificationCompleted =
+        (PhoneAuthCredential credential) async {
+      await auth.signInWithCredential(credential);
+    };
+    PhoneVerificationFailed verificationFailed = (FirebaseAuthException e) {
+      print('Failed to automatically verify phone number: ${e.message}');
+    };
+    PhoneCodeSent codeSent =
+        (String verificationId, [int? forceResendingToken]) {};
+    PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout =
+        (String verificationId) {
+      print(
+          'Timeout for automatic SMS code retrieval expired: $verificationId');
+    };
+    await FirebaseAuth.instance.verifyPhoneNumber(
+      phoneNumber: phoneNumber,
+      verificationCompleted: verificationCompleted,
+      verificationFailed: verificationFailed,
+      codeSent: codeSent,
+      codeAutoRetrievalTimeout: codeAutoRetrievalTimeout,
+    );
+  }
+
+  static Future<UserCredential> signInWithGoogle() async {
+    // Trigger the authentication flow
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication? googleAuth =
+        await googleUser?.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+
+    // Once signed in, return the UserCredential
+    return await FirebaseAuth.instance.signInWithCredential(credential);
   }
 }

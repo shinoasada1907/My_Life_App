@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:my_life_app/models/style.dart';
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
+
+  @override
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen> {
+  @override
+  // void initState() {
+  //   super.initState();
+  //   FirebaseAuth.instance.signOut();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -85,12 +96,6 @@ class WelcomeScreen extends StatelessWidget {
                         onTap: () {
                           Navigator.pushReplacementNamed(
                               context, '/number_phone_screen');
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => const LoginScreen(),
-                          //   ),
-                          // );
                         },
                         child: Container(
                           width: size.width * 0.6,

@@ -196,8 +196,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             padding: EdgeInsets.only(top: size.height * 0.02),
                             child: GestureDetector(
                               onTap: () {
-                                pickImageFromCamera().whenComplete(() =>
-                                    context.read<AuthCubit>().setimage(image!));
+                                pickImageFromCamera();
                               },
                               child: DottedBorder(
                                 borderType: BorderType.RRect,
@@ -227,9 +226,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             padding: EdgeInsets.only(top: size.height * 0.02),
                             child: GestureDetector(
                               onTap: () {
-                                pickImageFromCamera().whenComplete(() => context
-                                    .read<AuthCubit>()
-                                    .setimage(image1!));
+                                pickImageFromCamera();
                               },
                               child: DottedBorder(
                                 borderType: BorderType.RRect,

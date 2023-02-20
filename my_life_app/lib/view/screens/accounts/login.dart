@@ -1,24 +1,24 @@
-// ignore_for_file: body_might_complete_normally_nullable
-
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
+// ignore_for_file: body_might_complete_normally_nullable, avoid_print
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_life_app/bloc/auth_cubit/auth_cubit.dart';
 import 'package:my_life_app/models/style.dart';
-import 'package:my_life_app/view/screens/accounts/verify.dart';
 import 'package:my_life_app/view/widgets/auth_widget.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
-  static String verifyID = '';
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  var phone = '';
+  TextEditingController? phone;
+  @override
+  void initState() {
+    super.initState();
+    phone = TextEditingController();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,41 +83,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: size.width * 0.7,
                           margin: EdgeInsets.only(top: size.height * 0.07),
                           child: TextFormField(
+                            controller: phone,
                             keyboardType: TextInputType.phone,
                             validator: (value) {},
-                            onChanged: (value) {
-                              phone = value;
-                            },
                             decoration: textFormDecoration.copyWith(),
                           ),
                         ),
                         GestureDetector(
                           onTap: () async {
-                            await FirebaseAuth.instance.verifyPhoneNumber(
-                              phoneNumber: '+84${phone.toString()}',
-                              verificationCompleted:
-                                  (PhoneAuthCredential credential) async {
-                                FirebaseAuth.instance
-                                    .signInWithCredential(credential);
-                              },
-                              verificationFailed: (FirebaseAuthException e) {},
-                              codeSent:
-                                  (String verificationId, int? resendToken) {
-                                LoginScreen.verifyID = verificationId;
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => VerifySMS(
-                                        processing: true,
-                                      ),
-                                    ));
-                              },
-                              codeAutoRetrievalTimeout:
-                                  (String verificationId) {},
-                            );
-                            // context
-                            //     .read<AuthCubit>()
-                            //     .loginOTPPhone(context, phone);
+                            context
+                                .read<AuthCubit>()
+                                .loginOTPPhone(context, phone!.text);
+                            // checkLoginWithPhone();
                           },
                           child: Container(
                             margin: EdgeInsets.only(top: size.height * 0.01),
@@ -149,8 +126,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Navigator.pushReplacementNamed(
-                                context, '/signup_screen');
+                            context.read<AuthCubit>().loginWithGoogle(context);
                           },
                           child: Container(
                             width: size.width * 0.7,
