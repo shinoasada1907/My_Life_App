@@ -93,9 +93,8 @@ class _NumberPhoneState extends State<NumberPhone> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            context
-                                .read<AuthCubit>()
-                                .loginOTPPhone(context, numberphone!.text);
+                            context.read<AuthCubit>().loginOTPPhone(
+                                context, numberphone!.text, false);
                           },
                           child: Container(
                             margin: EdgeInsets.only(top: size.height * 0.015),

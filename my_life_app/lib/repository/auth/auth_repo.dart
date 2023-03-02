@@ -10,7 +10,6 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:my_life_app/models/user.dart';
 import 'package:my_life_app/view/screens/accounts/verify.dart';
 import 'package:path/path.dart' as path;
-import 'package:uuid/uuid.dart';
 
 class AuthRepository {
   static FirebaseAuth auth = FirebaseAuth.instance;
@@ -18,18 +17,21 @@ class AuthRepository {
   UserApp? userApp;
   static CollectionReference data =
       FirebaseFirestore.instance.collection('UserAccount');
-
-  static ImagePicker imagePicker = ImagePicker();
+  static CollectionReference profile =
+      FirebaseFirestore.instance.collection('Profile');
   static List<String> imageUrlList = [];
-  static XFile? imageFile;
-  static dynamic pickedImageError;
-  static late String uid;
 
   static Future<void> signUp(String name, int id, int numberPhone,
       String userId, var imageUrlList) async {
-    uid = const Uuid().v4();
-    await data.doc(uid).set({
-      'id': uid,
+    await data.doc(userId).set({
+      'id': userId,
+      'name': name,
+      'numberphone': numberPhone,
+      'uid': userId,
+    });
+    await profile.doc(userId).set({
+      'avatar': '',
+      'id': userId,
       'name': name,
       'cccd': id,
       'numberphone': numberPhone,

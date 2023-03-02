@@ -51,13 +51,14 @@ class AuthCubit extends Cubit<AuthState> {
             () => Navigator.pushReplacementNamed(context, '/home_screen'));
   }
 
-  Future<void> loginOTPPhone(BuildContext context, var phone) async {
+  Future<void> loginOTPPhone(
+      BuildContext context, var phone, bool processing) async {
     await AuthRepository.loginOTPPhone(context, phone)
         .whenComplete(() => Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => VerifySMS(
-                processing: false,
+                processing: processing,
               ),
             )));
   }

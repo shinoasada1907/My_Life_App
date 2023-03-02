@@ -93,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           onTap: () async {
                             context
                                 .read<AuthCubit>()
-                                .loginOTPPhone(context, phone!.text);
+                                .loginOTPPhone(context, phone!.text,true);
                             // checkLoginWithPhone();
                           },
                           child: Container(

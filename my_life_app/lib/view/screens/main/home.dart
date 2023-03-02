@@ -1,4 +1,5 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_life_app/models/style.dart';
 import 'package:my_life_app/view/screens/main/news_screen.dart';
@@ -17,15 +18,17 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectitem = 0;
   final List<IconData> icons = [
     Icons.home,
-    Icons.home,
     Icons.note_alt_sharp,
+    Icons.notifications,
     Icons.person
   ];
-  List screen = const [
-    NewsScreen(),
-    NewsScreen(),
-    NotificationManaScreen(),
-    ProfileScreen(),
+  List screen = [
+    const NewsScreen(),
+    const NotificationManaScreen(),
+    const NotificationScreen(),
+    ProfileScreen(
+      documentId: FirebaseAuth.instance.currentUser!.uid,
+    ),
   ];
   @override
   Widget build(BuildContext context) {
