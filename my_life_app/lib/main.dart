@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/welcome_screen',
+      initialRoute: '/home_screen',
       routes: {
         '/welcome_screen': (context) => const WelcomeScreen(),
         '/login_screen': (context) => const LoginScreen(),

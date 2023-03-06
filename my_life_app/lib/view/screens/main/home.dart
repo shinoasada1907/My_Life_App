@@ -1,11 +1,9 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_life_app/models/style.dart';
 import 'package:my_life_app/view/screens/main/news_screen.dart';
 import 'package:my_life_app/view/screens/main/notification_mana.dart';
 import 'package:my_life_app/view/screens/main/notification_screen.dart';
-import 'package:my_life_app/view/screens/main/profile.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -26,13 +24,15 @@ class _HomeScreenState extends State<HomeScreen> {
     const NewsScreen(),
     const NotificationManaScreen(),
     const NotificationScreen(),
-    ProfileScreen(
-      documentId: FirebaseAuth.instance.currentUser!.uid,
-    ),
+    // ProfileScreen(
+    //   documentId: FirebaseAuth.instance.currentUser!.uid,
+    // ),
+    const NotificationScreen(),
   ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppStyle.bgColor,
       body: screen[_selectitem],
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppStyle.mainColor,
@@ -57,6 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
         activeIndex: _selectitem,
         activeColor: AppStyle.bgColor,
         gapLocation: GapLocation.center,
+        splashColor: Colors.white,
         notchSmoothness: NotchSmoothness.smoothEdge,
         onTap: (value) {
           setState(() {

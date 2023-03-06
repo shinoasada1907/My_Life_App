@@ -12,7 +12,7 @@ class _NotificationManaScreenState extends State<NotificationManaScreen> {
   Widget build(BuildContext context) {
     return const Scaffold(
       body: Center(
-        child: Text('Nootification Management screen'),
+        child: Text('Quản lý'),
       ),
     );
   }

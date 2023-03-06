@@ -50,6 +50,7 @@ dependencies:
   uuid: ^3.0.7
   animated_bottom_navigation_bar: ^1.1.0+1
   equatable: ^2.0.5
+  google_maps_flutter: ^2.2.5
 
 dev_dependencies:
   flutter_test:

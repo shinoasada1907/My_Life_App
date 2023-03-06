@@ -1,10 +1,14 @@
+// ignore_for_file: unused_local_variable
+
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_life_app/models/style.dart';
+import 'package:my_life_app/view/widgets/profile_widget.dart';
 
 import '../../../bloc/profile_cubit/profile_cubit.dart';
 
@@ -43,6 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
     return FutureBuilder<DocumentSnapshot>(
       future: users.doc(widget.documentId).get(),
       builder:
@@ -79,66 +84,79 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 body: Center(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Stack(
+                      Column(
                         children: [
-                          GestureDetector(
-                            onTap: () {
-                              pickImageFromGallery();
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.symmetric(vertical: 15),
-                              decoration: BoxDecoration(
-                                  border: Border.all(
-                                      color: Colors.black54, width: 2),
-                                  borderRadius: BorderRadius.circular(90)),
-                              child: imageFile != null
-                                  ? CircleAvatar(
-                                      radius: 75,
-                                      backgroundImage:
-                                          FileImage(File(imageFile!.path)),
-                                    )
-                                  : data['avatar'] == ''
-                                      ? const CircleAvatar(
-                                          radius: 75,
-                                          backgroundImage: AssetImage(
-                                              'assets/images/avatar.jpg'),
-                                        )
-                                      : CircleAvatar(
-                                          radius: 75,
-                                          backgroundImage: NetworkImage(
-                                            data['avatar'],
-                                          ),
+                          Container(
+                            margin: const EdgeInsets.symmetric(vertical: 10),
+                            decoration: BoxDecoration(
+                                border:
+                                    Border.all(color: Colors.black54, width: 2),
+                                borderRadius: BorderRadius.circular(90)),
+                            child: imageFile != null
+                                ? CircleAvatar(
+                                    radius: 75,
+                                    backgroundImage:
+                                        FileImage(File(imageFile!.path)),
+                                  )
+                                : data['avatar'] == ''
+                                    ? const CircleAvatar(
+                                        radius: 75,
+                                        backgroundImage: AssetImage(
+                                            'assets/images/avatar.jpg'),
+                                      )
+                                    : CircleAvatar(
+                                        radius: 75,
+                                        backgroundImage: NetworkImage(
+                                          data['avatar'],
                                         ),
+                                      ),
+                          ),
+                          Text(
+                            data['name'],
+                            style: const TextStyle(
+                              fontSize: 25,
+                              fontFamily: 'Nunito',
+                              fontWeight: FontWeight.w900,
                             ),
                           ),
-                          Positioned(
-                            right: 10,
-                            bottom: 15,
-                            child: Container(
-                              padding: const EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                border:
-                                    Border.all(color: Colors.white, width: 2),
-                                color: Colors.green[400],
-                              ),
-                              child: const Icon(
-                                Icons.edit_outlined,
-                                color: Colors.white,
-                              ),
-                            ),
-                          )
                         ],
                       ),
-                      Text(
-                        data['name'],
-                        style: const TextStyle(
-                          fontSize: 25,
-                          fontFamily: 'Nunito',
-                          fontWeight: FontWeight.w900,
-                        ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          ProfileWidget(
+                            icons: Icons.person,
+                            title: 'Thông tin cá nhân',
+                            onPressed: () {},
+                          ),
+                          ProfileWidget(
+                            icons: Icons.notifications,
+                            title: 'Thông báo',
+                            onPressed: () {},
+                          ),
+                          ProfileWidget(
+                            icons: Icons.settings,
+                            title: 'Cài đặt',
+                            onPressed: () {},
+                          ),
+                        ],
                       ),
+                      Column(
+                        children: [
+                          ProfileWidget(
+                            icons: Icons.logout,
+                            title: 'Đăng xuất',
+                            onPressed: () {
+                              FirebaseAuth.instance.signOut().whenComplete(
+                                    () => Navigator.pushReplacementNamed(
+                                        context, '/welcome_screen'),
+                                  );
+                            },
+                          ),
+                        ],
+                      )
                     ],
                   ),
                 ),
