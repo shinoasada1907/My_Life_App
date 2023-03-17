@@ -14,6 +14,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController? phone;
+
   @override
   void initState() {
     super.initState();
@@ -93,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           onTap: () async {
                             context
                                 .read<AuthCubit>()
-                                .loginOTPPhone(context, phone!.text,true);
+                                .loginOTPPhone(context, phone!.text, true);
                             // checkLoginWithPhone();
                           },
                           child: Container(

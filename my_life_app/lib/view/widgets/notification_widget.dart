@@ -38,17 +38,43 @@ class _NotificationWidgetState extends State<NotificationWidget> {
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    '12/2/2023',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: const [
+                      Icon(
+                        Icons.calendar_month_outlined,
+                        color: Color.fromARGB(218, 7, 201, 245),
+                      ),
+                      Text(
+                        '12/2/2023',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
-                  Text(
-                    'Hồ Chí Minh',
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
+                  Row(
+                    children: const [
+                      Icon(
+                        Icons.location_on,
+                        color: Color.fromARGB(255, 221, 24, 10),
+                      ),
+                      Text(
+                        'Hồ Chí Minh',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ],
                   ),
-                  Text('Tình trạng: Đang duyệt'),
+                  Row(
+                    children: const [
+                      Icon(
+                        Icons.circle,
+                        color: Colors.green,
+                      ),
+                      Text('Tình trạng: Đang duyệt'),
+                    ],
+                  ),
                 ],
               ),
             ],

@@ -95,8 +95,14 @@ class _VerifySMSState extends State<VerifySMS> {
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10))),
                         onPressed: () {
-                          context.read<AuthCubit>().verify(code!.text, context,
-                              VerifySMS.verifyID!, widget.processing!);
+                          context.read<AuthCubit>().verify(
+                              code!.text,
+                              context,
+                              VerifySMS.verifyID!,
+                              widget.processing!,
+                              FirebaseAuth.instance.currentUser!.uid);
+                          print(
+                              'ID: ' + FirebaseAuth.instance.currentUser!.uid);
                         },
                         child: const Text("Verify Phone Number")),
                   ),

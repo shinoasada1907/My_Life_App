@@ -59,17 +59,21 @@ class AuthRepository {
   }
 
   static Future<void> loginOTPPhone(BuildContext context, var phone) async {
-    await FirebaseAuth.instance.verifyPhoneNumber(
-      phoneNumber: '+84${phone.toString()}',
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        await auth.signInWithCredential(credential);
-      },
-      verificationFailed: (FirebaseAuthException e) {},
-      codeSent: (String verificationId, int? resendToken) {
-        VerifySMS.verifyID = verificationId;
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {},
-    );
+    try {
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: '+84${phone.toString()}',
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          await auth.signInWithCredential(credential);
+        },
+        verificationFailed: (FirebaseAuthException e) {},
+        codeSent: (String verificationId, int? resendToken) {
+          VerifySMS.verifyID = verificationId;
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {},
+      );
+    } catch (e) {
+      print('Error: ${e.toString()}');
+    }
   }
 
   static Future<void> verify(var code, var verifyID) async {

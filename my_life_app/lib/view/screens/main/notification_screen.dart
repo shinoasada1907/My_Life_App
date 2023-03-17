@@ -1,9 +1,12 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:flutter/material.dart';
 import 'package:my_life_app/models/style.dart';
 import 'package:my_life_app/view/widgets/notification_widget.dart';
 
 class NotificationScreen extends StatefulWidget {
-  const NotificationScreen({super.key});
+  NotificationScreen({required this.processing, super.key});
+  bool processing;
 
   @override
   State<NotificationScreen> createState() => _NotificationScreenState();
@@ -14,6 +17,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: widget.processing ? false : true,
         backgroundColor: AppStyle.mainColor,
         title: const Text('Thông báo'),
         actions: [

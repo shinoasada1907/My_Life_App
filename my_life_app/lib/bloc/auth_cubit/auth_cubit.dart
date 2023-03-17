@@ -3,12 +3,14 @@
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_life_app/repository/auth/auth_repo.dart';
 import 'package:my_life_app/view/screens/accounts/signup.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:my_life_app/view/widgets/alert_widget.dart';
 import '../../view/screens/accounts/verify.dart';
 import 'package:path/path.dart' as path;
 
@@ -63,24 +65,49 @@ class AuthCubit extends Cubit<AuthState> {
             )));
   }
 
-  Future<void> verify(
-      var code, BuildContext context, String verifyID, bool processing) async {
+  Future<void> verify(var code, BuildContext context, String verifyID,
+      bool processing, String uid) async {
     try {
-      await AuthRepository.verify(code, verifyID)
-          .whenComplete(() => processing == true
-              ? Navigator.pushReplacementNamed(context, '/home_screen')
-              : Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SignUpScreen(
-                      numberPhone:
-                          FirebaseAuth.instance.currentUser!.phoneNumber,
-                    ),
-                  ),
-                ));
+      await AuthRepository.verify(code, verifyID).whenComplete(() {
+        FirebaseFirestore.instance
+            .collection('UserAccount')
+            .doc(uid)
+            .get()
+            .then((DocumentSnapshot snapshot) {
+          if (snapshot.exists) {
+            Navigator.pushReplacementNamed(context, '/home_screen');
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SignUpScreen(
+                  numberPhone: FirebaseAuth.instance.currentUser!.phoneNumber,
+                ),
+              ),
+            );
+          }
+        });
+      });
     } catch (e) {
       print(e.toString());
     }
+
+    // try {
+    //   await AuthRepository.verify(code, verifyID)
+    //       .whenComplete(() => processing == true
+    //           ? Navigator.pushReplacementNamed(context, '/home_screen')
+    //           : Navigator.push(
+    //               context,
+    //               MaterialPageRoute(
+    //                 builder: (context) => SignUpScreen(
+    //                   numberPhone:
+    //                       FirebaseAuth.instance.currentUser!.phoneNumber,
+    //                 ),
+    //               ),
+    //             ));
+    // } catch (e) {
+    //   print(e.toString());
+    // }
   }
 
   Future<void> loginWithGoogle(BuildContext context) async {
@@ -90,4 +117,17 @@ class AuthCubit extends Cubit<AuthState> {
           builder: (context) => SignUpScreen(),
         )));
   }
+
+  // Future<bool> checkNumberPhone(String numberPhone) async {
+  //   await FirebaseFirestore.instance
+  //       .collection('UserAccount')
+  //       .where('numberphone', isEqualTo: numberPhone)
+  //       .get()
+  //       .then((value) {
+  //     if (value.docs.isNotEmpty) {
+  //       return true;
+  //     } else
+  //       return false;
+  //   });
+  // }
 }

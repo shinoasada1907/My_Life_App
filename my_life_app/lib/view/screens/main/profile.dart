@@ -8,6 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_life_app/models/style.dart';
+import 'package:my_life_app/view/screens/main/notification_screen.dart';
+import 'package:my_life_app/view/screens/minor/information_screen.dart';
+import 'package:my_life_app/view/screens/minor/setting_screen.dart';
 import 'package:my_life_app/view/widgets/profile_widget.dart';
 
 import '../../../bloc/profile_cubit/profile_cubit.dart';
@@ -129,17 +132,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ProfileWidget(
                             icons: Icons.person,
                             title: 'Thông tin cá nhân',
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const InformationScreen(),
+                                  ));
+                            },
                           ),
                           ProfileWidget(
                             icons: Icons.notifications,
                             title: 'Thông báo',
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => NotificationScreen(
+                                      processing: false,
+                                    ),
+                                  ));
+                            },
                           ),
                           ProfileWidget(
                             icons: Icons.settings,
                             title: 'Cài đặt',
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const SettingScreen()));
+                            },
                           ),
                         ],
                       ),
