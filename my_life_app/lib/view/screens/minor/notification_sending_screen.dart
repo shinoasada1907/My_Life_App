@@ -1,14 +1,20 @@
 // ignore_for_file: must_be_immutable, prefer_typing_uninitialized_variables, avoid_print
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:my_life_app/models/style.dart';
 import 'package:my_life_app/view/widgets/auth_widget.dart';
 
 class NotificationSendingScreen extends StatefulWidget {
   NotificationSendingScreen(
-      {required this.documentId, required this.data, super.key});
+      {required this.documentId,
+      required this.data,
+      required this.image,
+      super.key});
   String documentId;
   dynamic data;
+  dynamic image;
 
   @override
   State<NotificationSendingScreen> createState() =>
@@ -43,7 +49,7 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
                   margin: const EdgeInsets.symmetric(vertical: 10),
                   width: size.width * 0.85,
                   height: size.height * 0.3,
-                  child: Image.asset('assets/images/anh_duong.jpg'),
+                  child: Image(image: FileImage(File(widget.image))),
                 ),
               ),
               Container(

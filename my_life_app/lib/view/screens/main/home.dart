@@ -4,6 +4,7 @@ import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.da
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:my_life_app/models/style.dart';
 import 'package:my_life_app/view/screens/main/news_screen.dart';
 import 'package:my_life_app/view/screens/main/notification_mana.dart';
@@ -20,6 +21,11 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectitem = 0;
+
+  XFile? image;
+  ImagePicker imagePicker = ImagePicker();
+  dynamic pickedImageError;
+
   final List<IconData> icons = [
     Icons.home,
     Icons.note_alt_sharp,
@@ -68,6 +74,22 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future<void> pickImageFromCamera() async {
+    try {
+      final pickedImage = await imagePicker.pickImage(
+          source: ImageSource.camera,
+          maxHeight: 300,
+          maxWidth: 300,
+          imageQuality: 95);
+      setState(() {
+        image = pickedImage;
+      });
+    } catch (e) {
+      pickedImageError = e;
+      print(pickedImageError);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -82,13 +104,14 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppStyle.mainColor,
         onPressed: () {
-          Navigator.push(
+          pickImageFromCamera().whenComplete(() => Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) => NotificationSendingScreen(
                         documentId: FirebaseAuth.instance.currentUser!.uid,
                         data: data,
-                      )));
+                        image: image!.path,
+                      ))));
         },
         child: const Icon(
           Icons.camera_alt,
