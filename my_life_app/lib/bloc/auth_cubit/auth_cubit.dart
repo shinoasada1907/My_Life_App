@@ -10,7 +10,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:my_life_app/repository/auth/auth_repo.dart';
 import 'package:my_life_app/view/screens/accounts/signup.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:my_life_app/view/widgets/alert_widget.dart';
 import '../../view/screens/accounts/verify.dart';
 import 'package:path/path.dart' as path;
 
