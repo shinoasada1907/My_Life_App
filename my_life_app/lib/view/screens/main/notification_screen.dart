@@ -1,6 +1,7 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:flutter/material.dart';
+import 'package:my_life_app/models/notification.dart';
 import 'package:my_life_app/models/style.dart';
 import 'package:my_life_app/view/widgets/notification_widget.dart';
 
@@ -31,9 +32,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
       ),
       backgroundColor: AppStyle.bgColor,
       body: ListView.builder(
-        itemCount: 10,
+        itemCount: notifiList.length,
         itemBuilder: (context, index) {
-          return const NotificationWidget();
+          return NotificationWidget(
+            index: index,
+            date: notifiList[index].date!,
+            location: notifiList[index].location!,
+            status: notifiList[index].status!,
+            url: notifiList[index].url!,
+            comment: notifiList[index].comment,
+          );
         },
       ),
     );

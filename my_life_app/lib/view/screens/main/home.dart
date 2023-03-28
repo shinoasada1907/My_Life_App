@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:my_life_app/models/inherited_widget.dart';
 import 'package:my_life_app/models/style.dart';
 import 'package:my_life_app/view/screens/main/news_screen.dart';
 import 'package:my_life_app/view/screens/main/notification_mana.dart';
@@ -98,42 +99,45 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppStyle.bgColor,
-      body: screen[_selectitem],
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppStyle.mainColor,
-        onPressed: () {
-          pickImageFromCamera().whenComplete(() => Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => NotificationSendingScreen(
-                        documentId: FirebaseAuth.instance.currentUser!.uid,
-                        data: data,
-                        image: image!.path,
-                      ))));
-        },
-        child: const Icon(
-          Icons.camera_alt,
-          size: 30,
+    return MyInheritedWidget(
+      data: data,
+      child: Scaffold(
+        backgroundColor: AppStyle.bgColor,
+        body: screen[_selectitem],
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: AppStyle.mainColor,
+          onPressed: () {
+            pickImageFromCamera().whenComplete(() => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => NotificationSendingScreen(
+                          documentId: FirebaseAuth.instance.currentUser!.uid,
+                          data: data,
+                          image: image!.path,
+                        ))));
+          },
+          child: const Icon(
+            Icons.camera_alt,
+            size: 30,
+          ),
         ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: AnimatedBottomNavigationBar(
-        height: MediaQuery.of(context).size.height * 0.07,
-        backgroundColor: AppStyle.mainColor,
-        icons: icons,
-        iconSize: 30,
-        activeIndex: _selectitem,
-        activeColor: AppStyle.bgColor,
-        gapLocation: GapLocation.center,
-        splashColor: Colors.white,
-        notchSmoothness: NotchSmoothness.smoothEdge,
-        onTap: (value) {
-          setState(() {
-            _selectitem = value;
-          });
-        },
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        bottomNavigationBar: AnimatedBottomNavigationBar(
+          height: MediaQuery.of(context).size.height * 0.07,
+          backgroundColor: AppStyle.mainColor,
+          icons: icons,
+          iconSize: 30,
+          activeIndex: _selectitem,
+          activeColor: AppStyle.bgColor,
+          gapLocation: GapLocation.center,
+          splashColor: Colors.white,
+          notchSmoothness: NotchSmoothness.smoothEdge,
+          onTap: (value) {
+            setState(() {
+              _selectitem = value;
+            });
+          },
+        ),
       ),
     );
   }

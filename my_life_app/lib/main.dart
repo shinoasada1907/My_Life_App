@@ -1,8 +1,13 @@
+// ignore_for_file: avoid_print, must_be_immutable
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_life_app/bloc/auth_cubit/auth_cubit.dart';
 import 'package:my_life_app/bloc/profile_cubit/profile_cubit.dart';
+import 'package:my_life_app/models/inherited_widget.dart';
 import 'package:my_life_app/view/screens/accounts/login.dart';
 import 'package:my_life_app/view/screens/accounts/number_phone.dart';
 import 'package:my_life_app/view/screens/accounts/signup.dart';
