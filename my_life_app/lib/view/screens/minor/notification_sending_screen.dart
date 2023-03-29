@@ -49,7 +49,11 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
                   margin: const EdgeInsets.symmetric(vertical: 10),
                   width: size.width * 0.85,
                   height: size.height * 0.3,
-                  child: Image(image: FileImage(File(widget.image))),
+                  child: Image(
+                    image: FileImage(
+                      File(widget.image),
+                    ),
+                  ),
                 ),
               ),
               Container(
