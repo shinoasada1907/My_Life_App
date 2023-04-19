@@ -9,11 +9,12 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  @override
-  // void initState() {
-  //   super.initState();
-  //   FirebaseAuth.instance.signOut();
-  // }
+  bool isLoading = false;
+  void loginScreen() {
+    setState(() {
+      isLoading = true;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,64 +62,79 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   ),
                   Column(
                     children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pushReplacementNamed(
-                              context, '/login_screen');
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => const LoginScreen(),
-                          //   ),
-                          // );
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          width: size.width * 0.6,
-                          height: size.height * 0.065,
-                          decoration: BoxDecoration(
-                            color: AppStyle.mainColor,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              'Đăng nhập',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        width: size.width * 0.6,
+                        height: size.height * 0.065,
+                        decoration: BoxDecoration(
+                          color: AppStyle.mainColor,
+                          borderRadius: BorderRadius.circular(15),
                         ),
+                        child: isLoading
+                            ? const Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              )
+                            : ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    elevation: 0,
+                                    backgroundColor: AppStyle.mainColor,
+                                    shape: const CircleBorder()),
+                                onPressed: () {
+                                  loginScreen();
+                                  Navigator.pushReplacementNamed(
+                                      context, '/login_screen');
+                                },
+                                child: const Center(
+                                  child: Text(
+                                    'Đăng nhập',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pushReplacementNamed(
-                              context, '/number_phone_screen');
-                        },
-                        child: Container(
-                          width: size.width * 0.6,
-                          height: size.height * 0.065,
-                          decoration: BoxDecoration(
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        width: size.width * 0.6,
+                        height: size.height * 0.065,
+                        decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(15),
                             border: Border.all(
-                              width: 2,
-                              color: AppStyle.mainColor,
-                            ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              'Đăng ký',
-                              style: TextStyle(
-                                color: AppStyle.mainColor,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
+                                color: AppStyle.mainColor, width: 2)),
+                        child: isLoading
+                            ? const Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              )
+                            : ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  elevation: 0,
+                                  backgroundColor: Colors.white,
+                                  shape: const CircleBorder(),
+                                ),
+                                onPressed: () {
+                                  loginScreen();
+                                  Navigator.pushReplacementNamed(
+                                      context, '/login_screen');
+                                },
+                                child: Center(
+                                  child: Text(
+                                    'Đăng ký',
+                                    style: TextStyle(
+                                      color: AppStyle.mainColor,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        ),
                       ),
                     ],
                   ),

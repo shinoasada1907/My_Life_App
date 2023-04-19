@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_life_app/bloc/auth_cubit/auth_cubit.dart';
 import 'package:my_life_app/models/style.dart';
+import 'package:my_life_app/view/screens/accounts/verify.dart';
 import 'package:my_life_app/view/widgets/auth_widget.dart';
+
+import '../../../repository/auth/auth_repo.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,12 +16,33 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  bool isLoading = false;
+
   TextEditingController? phone;
 
   @override
   void initState() {
     super.initState();
     phone = TextEditingController();
+  }
+
+  Future<void> loginOTPPhone(
+      BuildContext context, var phone, bool processing) async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      await AuthRepository.loginOTPPhone(context, phone)
+          .whenComplete(() => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => VerifySMS(
+                  processing: processing,
+                ),
+              )));
+    } catch (e) {
+      print('Error: ${e.toString()}');
+    }
   }
 
   @override
@@ -90,33 +114,70 @@ class _LoginScreenState extends State<LoginScreen> {
                             decoration: textFormDecoration.copyWith(),
                           ),
                         ),
-                        GestureDetector(
-                          onTap: () async {
-                            context
-                                .read<AuthCubit>()
-                                .loginOTPPhone(context, phone!.text, true);
-                            // checkLoginWithPhone();
-                          },
-                          child: Container(
-                            margin: EdgeInsets.only(top: size.height * 0.01),
-                            width: size.width * 0.7,
-                            height: size.height * 0.07,
-                            decoration: BoxDecoration(
-                              color: AppStyle.mainColor,
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                'Đăng nhập',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
+                        Container(
+                          margin: EdgeInsets.only(top: size.height * 0.01),
+                          width: size.width * 0.7,
+                          height: size.height * 0.07,
+                          decoration: BoxDecoration(
+                            color: AppStyle.mainColor,
+                            borderRadius: BorderRadius.circular(25),
                           ),
+                          child: isLoading
+                              ? const Center(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppStyle.mainColor,
+                                    shape: const CircleBorder(),
+                                    elevation: 0,
+                                  ),
+                                  onPressed: () {
+                                    // loginOTPPhone(context, phone, true);
+                                    context.read<AuthCubit>().loginOTPPhone(
+                                        context, phone!.text, true);
+                                  },
+                                  child: const Center(
+                                    child: Text(
+                                      'Đăng nhập',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                         ),
+                        // GestureDetector(
+                        //   onTap: () async {
+                        //     // context
+                        //     //     .read<AuthCubit>()
+                        //     //     .loginOTPPhone(context, phone!.text, true);
+                        //     loginOTPPhone(context, phone, true);
+                        //   },
+                        //   child: Container(
+                        //     margin: EdgeInsets.only(top: size.height * 0.01),
+                        //     width: size.width * 0.7,
+                        //     height: size.height * 0.07,
+                        //     decoration: BoxDecoration(
+                        //       color: AppStyle.mainColor,
+                        //       borderRadius: BorderRadius.circular(25),
+                        //     ),
+                        //     child: const Center(
+                        //       child: Text(
+                        //         'Đăng nhập',
+                        //         style: TextStyle(
+                        //           color: Colors.white,
+                        //           fontSize: 18,
+                        //           fontWeight: FontWeight.w600,
+                        //         ),
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
                         const Padding(
                           padding: EdgeInsets.only(top: 8, bottom: 8),
                           child: Text(
@@ -125,33 +186,73 @@ class _LoginScreenState extends State<LoginScreen> {
                                 fontSize: 15, fontWeight: FontWeight.w600),
                           ),
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            context.read<AuthCubit>().loginWithGoogle(context);
-                          },
-                          child: Container(
-                            width: size.width * 0.7,
-                            height: size.height * 0.07,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(25),
-                              border: Border.all(
-                                width: 2,
-                                color: AppStyle.mainColor,
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'Google',
-                                style: TextStyle(
-                                  color: AppStyle.mainColor,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                        Container(
+                          width: size.width * 0.7,
+                          height: size.height * 0.07,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(25),
+                            border: Border.all(
+                              width: 2,
+                              color: AppStyle.mainColor,
                             ),
                           ),
+                          child: isLoading
+                              ? const Center(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    shape: const CircleBorder(),
+                                    elevation: 0,
+                                  ),
+                                  onPressed: () {
+                                    context
+                                        .read<AuthCubit>()
+                                        .loginWithGoogle(context);
+                                  },
+                                  child: Center(
+                                    child: Text(
+                                      'Google',
+                                      style: TextStyle(
+                                        color: AppStyle.mainColor,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                         ),
+                        // GestureDetector(
+                        //   onTap: () {
+                        //     context.read<AuthCubit>().loginWithGoogle(context);
+                        //   },
+                        //   child: Container(
+                        //     width: size.width * 0.7,
+                        //     height: size.height * 0.07,
+                        //     decoration: BoxDecoration(
+                        //       color: Colors.white,
+                        //       borderRadius: BorderRadius.circular(25),
+                        //       border: Border.all(
+                        //         width: 2,
+                        //         color: AppStyle.mainColor,
+                        //       ),
+                        //     ),
+                        //     child: Center(
+                        //       child: Text(
+                        //         'Google',
+                        //         style: TextStyle(
+                        //           color: AppStyle.mainColor,
+                        //           fontSize: 18,
+                        //           fontWeight: FontWeight.w600,
+                        //         ),
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
