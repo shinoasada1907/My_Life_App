@@ -1,12 +1,14 @@
 // ignore_for_file: body_might_complete_normally_nullable, avoid_print
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:my_life_app/bloc/auth_cubit/auth_cubit.dart';
 import 'package:my_life_app/models/style.dart';
+import 'package:my_life_app/view/screens/accounts/signup.dart';
 import 'package:my_life_app/view/screens/accounts/verify.dart';
 import 'package:my_life_app/view/widgets/auth_widget.dart';
-
-import '../../../repository/auth/auth_repo.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,6 +18,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  FirebaseAuth auth = FirebaseAuth.instance;
+
   bool isLoading = false;
 
   TextEditingController? phone;
@@ -24,15 +28,27 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     phone = TextEditingController();
+    isLoading = false;
   }
 
-  Future<void> loginOTPPhone(
-      BuildContext context, var phone, bool processing) async {
+  //Login with number phone
+  Future<void> loginOTPPhone(String phone, bool processing) async {
     setState(() {
       isLoading = true;
     });
     try {
-      await AuthRepository.loginOTPPhone(context, phone)
+      await FirebaseAuth.instance
+          .verifyPhoneNumber(
+            phoneNumber: '+84${phone.toString()}',
+            verificationCompleted: (PhoneAuthCredential credential) async {
+              await auth.signInWithCredential(credential);
+            },
+            verificationFailed: (FirebaseAuthException e) {},
+            codeSent: (String verificationId, int? resendToken) {
+              VerifySMS.verifyID = verificationId;
+            },
+            codeAutoRetrievalTimeout: (String verificationId) {},
+          )
           .whenComplete(() => Navigator.push(
               context,
               MaterialPageRoute(
@@ -43,6 +59,46 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       print('Error: ${e.toString()}');
     }
+  }
+
+  //Login with google
+  Future<UserCredential> signInWithGoogle() async {
+    // Trigger the authentication flow
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication? googleAuth =
+        await googleUser?.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+
+    // Once signed in, return the UserCredential
+    return await FirebaseAuth.instance.signInWithCredential(credential);
+  }
+
+  Future<void> loginWithGoogle(String uid) async {
+    FirebaseFirestore.instance
+        .collection('UserAccount')
+        .doc(uid)
+        .get()
+        .then((DocumentSnapshot snapshot) {
+      if (snapshot.exists) {
+        Navigator.pushReplacementNamed(context, '/home_screen');
+      } else {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SignUpScreen(
+              numberPhone: FirebaseAuth.instance.currentUser!.phoneNumber,
+            ),
+          ),
+        );
+      }
+    });
   }
 
   @override
@@ -135,9 +191,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     elevation: 0,
                                   ),
                                   onPressed: () {
-                                    // loginOTPPhone(context, phone, true);
-                                    context.read<AuthCubit>().loginOTPPhone(
-                                        context, phone!.text, true);
+                                    loginOTPPhone(phone!.text, true);
                                   },
                                   child: const Center(
                                     child: Text(
@@ -151,33 +205,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                         ),
-                        // GestureDetector(
-                        //   onTap: () async {
-                        //     // context
-                        //     //     .read<AuthCubit>()
-                        //     //     .loginOTPPhone(context, phone!.text, true);
-                        //     loginOTPPhone(context, phone, true);
-                        //   },
-                        //   child: Container(
-                        //     margin: EdgeInsets.only(top: size.height * 0.01),
-                        //     width: size.width * 0.7,
-                        //     height: size.height * 0.07,
-                        //     decoration: BoxDecoration(
-                        //       color: AppStyle.mainColor,
-                        //       borderRadius: BorderRadius.circular(25),
-                        //     ),
-                        //     child: const Center(
-                        //       child: Text(
-                        //         'Đăng nhập',
-                        //         style: TextStyle(
-                        //           color: Colors.white,
-                        //           fontSize: 18,
-                        //           fontWeight: FontWeight.w600,
-                        //         ),
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
                         const Padding(
                           padding: EdgeInsets.only(top: 8, bottom: 8),
                           child: Text(
@@ -198,9 +225,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           child: isLoading
-                              ? const Center(
+                              ? Center(
                                   child: CircularProgressIndicator(
-                                    color: Colors.white,
+                                    color: AppStyle.mainColor,
                                   ),
                                 )
                               : ElevatedButton(
@@ -210,9 +237,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                     elevation: 0,
                                   ),
                                   onPressed: () {
-                                    context
-                                        .read<AuthCubit>()
-                                        .loginWithGoogle(context);
+                                    signInWithGoogle().whenComplete(() {
+                                      loginWithGoogle(FirebaseAuth
+                                          .instance.currentUser!.uid);
+                                      print(FirebaseAuth
+                                          .instance.currentUser!.uid);
+                                    });
                                   },
                                   child: Center(
                                     child: Text(
@@ -226,33 +256,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                         ),
-                        // GestureDetector(
-                        //   onTap: () {
-                        //     context.read<AuthCubit>().loginWithGoogle(context);
-                        //   },
-                        //   child: Container(
-                        //     width: size.width * 0.7,
-                        //     height: size.height * 0.07,
-                        //     decoration: BoxDecoration(
-                        //       color: Colors.white,
-                        //       borderRadius: BorderRadius.circular(25),
-                        //       border: Border.all(
-                        //         width: 2,
-                        //         color: AppStyle.mainColor,
-                        //       ),
-                        //     ),
-                        //     child: Center(
-                        //       child: Text(
-                        //         'Google',
-                        //         style: TextStyle(
-                        //           color: AppStyle.mainColor,
-                        //           fontSize: 18,
-                        //           fontWeight: FontWeight.w600,
-                        //         ),
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
                       ],
                     ),
                   ),

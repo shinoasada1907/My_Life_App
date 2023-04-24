@@ -1,5 +1,9 @@
+// ignore_for_file: avoid_print
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_life_app/view/screens/accounts/verify.dart';
 
 import '../../../bloc/auth_cubit/auth_cubit.dart';
 import '../../../models/style.dart';
@@ -13,14 +17,49 @@ class NumberPhone extends StatefulWidget {
 }
 
 class _NumberPhoneState extends State<NumberPhone> {
+  FirebaseAuth auth = FirebaseAuth.instance;
+
   TextEditingController? numberphone;
   String? verifyID;
   String code = '';
+  bool isLoading = false;
+
   @override
   void initState() {
     super.initState();
     numberphone = TextEditingController();
     verifyID = '';
+    isLoading = false;
+  }
+
+  //Login with number phone
+  Future<void> loginOTPPhone(String phone, bool processing) async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      await FirebaseAuth.instance
+          .verifyPhoneNumber(
+            phoneNumber: '+84${phone.toString()}',
+            verificationCompleted: (PhoneAuthCredential credential) async {
+              await auth.signInWithCredential(credential);
+            },
+            verificationFailed: (FirebaseAuthException e) {},
+            codeSent: (String verificationId, int? resendToken) {
+              VerifySMS.verifyID = verificationId;
+            },
+            codeAutoRetrievalTimeout: (String verificationId) {},
+          )
+          .whenComplete(() => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => VerifySMS(
+                  processing: processing,
+                ),
+              )));
+    } catch (e) {
+      print('Error: ${e.toString()}');
+    }
   }
 
   @override
@@ -93,8 +132,9 @@ class _NumberPhoneState extends State<NumberPhone> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            context.read<AuthCubit>().loginOTPPhone(
-                                context, numberphone!.text, false);
+                            loginOTPPhone(numberphone!.text, false);
+                            // context.read<AuthCubit>().loginOTPPhone(
+                            //     context, numberphone!.text, false);
                           },
                           child: Container(
                             margin: EdgeInsets.only(top: size.height * 0.015),

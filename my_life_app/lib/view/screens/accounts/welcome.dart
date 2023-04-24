@@ -122,7 +122,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 onPressed: () {
                                   loginScreen();
                                   Navigator.pushReplacementNamed(
-                                      context, '/login_screen');
+                                      context, '/number_phone_screen');
                                 },
                                 child: Center(
                                   child: Text(

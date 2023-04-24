@@ -1,12 +1,13 @@
 // ignore_for_file: use_build_context_synchronously, avoid_print, must_be_immutable, prefer_interpolation_to_compose_strings
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:my_life_app/bloc/auth_cubit/auth_cubit.dart';
 import 'package:my_life_app/models/style.dart';
+import 'package:my_life_app/view/screens/accounts/signup.dart';
 import 'package:pinput/pinput.dart';
-
 import '../../widgets/auth_widget.dart';
 
 class VerifySMS extends StatefulWidget {
@@ -26,6 +27,40 @@ class _VerifySMSState extends State<VerifySMS> {
   void initState() {
     super.initState();
     code = TextEditingController(text: widget.smscode);
+  }
+
+  Future<void> verifyOTP(String code, String verifyID) async {
+    PhoneAuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: verifyID.toString(), smsCode: code.toString());
+    await auth.signInWithCredential(credential);
+  }
+
+  Future<void> verify(
+      String code, String verifyID, bool processing, String uid) async {
+    try {
+      await verifyOTP(code, verifyID).whenComplete(() {
+        FirebaseFirestore.instance
+            .collection('UserAccount')
+            .doc(uid)
+            .get()
+            .then((DocumentSnapshot snapshot) {
+          if (snapshot.exists) {
+            Navigator.pushReplacementNamed(context, '/home_screen');
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SignUpScreen(
+                  numberPhone: FirebaseAuth.instance.currentUser!.phoneNumber,
+                ),
+              ),
+            );
+          }
+        });
+      });
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   @override
@@ -95,9 +130,8 @@ class _VerifySMSState extends State<VerifySMS> {
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10))),
                         onPressed: () {
-                          context.read<AuthCubit>().verify(
+                          verify(
                               code!.text,
-                              context,
                               VerifySMS.verifyID!,
                               widget.processing!,
                               FirebaseAuth.instance.currentUser!.uid);
