@@ -164,8 +164,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ProfileWidget(
                         icons: Icons.logout,
                         title: 'Đăng xuất',
-                        onPressed: () {
-                          FirebaseAuth.instance.signOut().whenComplete(
+                        onPressed: () async {
+                          await FirebaseAuth.instance.signOut().whenComplete(
                                 () => Navigator.pushReplacementNamed(
                                     context, '/welcome_screen'),
                               );

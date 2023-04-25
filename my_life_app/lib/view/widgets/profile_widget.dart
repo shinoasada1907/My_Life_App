@@ -15,7 +15,7 @@ class ProfileWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    return InkWell(
+    return GestureDetector(
       onTap: onPressed,
       child: Container(
         margin: EdgeInsets.only(top: size.height * 0.01),

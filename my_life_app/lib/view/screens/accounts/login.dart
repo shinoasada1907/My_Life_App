@@ -2,9 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:my_life_app/bloc/auth_cubit/auth_cubit.dart';
 import 'package:my_life_app/models/style.dart';
 import 'package:my_life_app/view/screens/accounts/signup.dart';
 import 'package:my_life_app/view/screens/accounts/verify.dart';
@@ -33,9 +31,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   //Login with number phone
   Future<void> loginOTPPhone(String phone, bool processing) async {
-    setState(() {
-      isLoading = true;
-    });
     try {
       await FirebaseAuth.instance
           .verifyPhoneNumber(
@@ -99,172 +94,176 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     });
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    return BlocBuilder<AuthCubit, AuthState>(
-      builder: (context, state) {
-        return Scaffold(
-          backgroundColor: AppStyle.mainColor,
-          body: SingleChildScrollView(
-            child: SafeArea(
-              child: Column(
-                children: [
-                  Container(
-                    margin: EdgeInsets.only(
-                        left: size.width * 0.1,
-                        right: size.width * 0.1,
-                        top: size.height * 0.2),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Đăng nhập',
-                          style: TextStyle(
-                            fontSize: 30,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            Navigator.pushReplacementNamed(
-                                context, '/welcome_screen');
-                          },
-                          icon: const Icon(
-                            Icons.home,
-                            size: 30,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
+    return Scaffold(
+      backgroundColor: AppStyle.mainColor,
+      body: SingleChildScrollView(
+        child: SafeArea(
+          child: Column(
+            children: [
+              Container(
+                margin: EdgeInsets.only(
+                    left: size.width * 0.1,
+                    right: size.width * 0.1,
+                    top: size.height * 0.2),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Đăng nhập',
+                      style: TextStyle(
+                        fontSize: 30,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(top: size.height * 0.08),
-                    width: size.width * 0.8,
-                    height: size.height * 0.40,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 7,
-                          blurRadius: 7,
-                          offset: const Offset(0, 0),
-                        ),
-                      ],
-                      borderRadius: BorderRadius.circular(50),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.pushReplacementNamed(
+                            context, '/welcome_screen');
+                      },
+                      icon: const Icon(
+                        Icons.home,
+                        size: 30,
+                        color: Colors.white,
+                      ),
                     ),
-                    child: Column(
-                      children: [
-                        Container(
-                          width: size.width * 0.7,
-                          margin: EdgeInsets.only(top: size.height * 0.07),
-                          child: TextFormField(
-                            controller: phone,
-                            keyboardType: TextInputType.phone,
-                            validator: (value) {},
-                            decoration: textFormDecoration.copyWith(),
-                          ),
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(top: size.height * 0.01),
-                          width: size.width * 0.7,
-                          height: size.height * 0.07,
-                          decoration: BoxDecoration(
-                            color: AppStyle.mainColor,
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          child: isLoading
-                              ? const Center(
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppStyle.mainColor,
-                                    shape: const CircleBorder(),
-                                    elevation: 0,
-                                  ),
-                                  onPressed: () {
-                                    loginOTPPhone(phone!.text, true);
-                                  },
-                                  child: const Center(
-                                    child: Text(
-                                      'Đăng nhập',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.only(top: 8, bottom: 8),
-                          child: Text(
-                            'Hoặc',
-                            style: TextStyle(
-                                fontSize: 15, fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                        Container(
-                          width: size.width * 0.7,
-                          height: size.height * 0.07,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(25),
-                            border: Border.all(
-                              width: 2,
-                              color: AppStyle.mainColor,
-                            ),
-                          ),
-                          child: isLoading
-                              ? Center(
-                                  child: CircularProgressIndicator(
-                                    color: AppStyle.mainColor,
-                                  ),
-                                )
-                              : ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    shape: const CircleBorder(),
-                                    elevation: 0,
-                                  ),
-                                  onPressed: () {
-                                    signInWithGoogle().whenComplete(() {
-                                      loginWithGoogle(FirebaseAuth
-                                          .instance.currentUser!.uid);
-                                      print(FirebaseAuth
-                                          .instance.currentUser!.uid);
-                                    });
-                                  },
-                                  child: Center(
-                                    child: Text(
-                                      'Google',
-                                      style: TextStyle(
-                                        color: AppStyle.mainColor,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+              Container(
+                margin: EdgeInsets.only(top: size.height * 0.08),
+                width: size.width * 0.8,
+                height: size.height * 0.40,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 7,
+                      blurRadius: 7,
+                      offset: const Offset(0, 0),
+                    ),
+                  ],
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      width: size.width * 0.7,
+                      margin: EdgeInsets.only(top: size.height * 0.07),
+                      child: TextFormField(
+                        controller: phone,
+                        keyboardType: TextInputType.phone,
+                        validator: (value) {},
+                        decoration: textFormDecoration.copyWith(),
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: size.height * 0.01),
+                      width: size.width * 0.7,
+                      height: size.height * 0.07,
+                      decoration: BoxDecoration(
+                        color: AppStyle.mainColor,
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      child: isLoading
+                          ? const Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            )
+                          : ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppStyle.mainColor,
+                                shape: const CircleBorder(),
+                                elevation: 0,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                loginOTPPhone(phone!.text, true);
+                              },
+                              child: const Center(
+                                child: Text(
+                                  'Đăng nhập',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 8, bottom: 8),
+                      child: Text(
+                        'Hoặc',
+                        style: TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    Container(
+                      width: size.width * 0.7,
+                      height: size.height * 0.07,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(25),
+                        border: Border.all(
+                          width: 2,
+                          color: AppStyle.mainColor,
+                        ),
+                      ),
+                      child: isLoading
+                          ? Center(
+                              child: CircularProgressIndicator(
+                                color: AppStyle.mainColor,
+                              ),
+                            )
+                          : ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                shape: const CircleBorder(),
+                                elevation: 0,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                signInWithGoogle().whenComplete(() {
+                                  loginWithGoogle(
+                                      FirebaseAuth.instance.currentUser!.uid);
+                                  print(FirebaseAuth.instance.currentUser!.uid);
+                                });
+                              },
+                              child: Center(
+                                child: Text(
+                                  'Google',
+                                  style: TextStyle(
+                                    color: AppStyle.mainColor,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
