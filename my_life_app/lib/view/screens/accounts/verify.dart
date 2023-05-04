@@ -20,6 +20,7 @@ class VerifySMS extends StatefulWidget {
 
 class _VerifySMSState extends State<VerifySMS> {
   TextEditingController? code;
+  bool isLoading = false;
   final FirebaseAuth auth = FirebaseAuth.instance;
   @override
   void initState() {
@@ -28,6 +29,9 @@ class _VerifySMSState extends State<VerifySMS> {
   }
 
   Future<void> verifyOTP(String code, String verifyID) async {
+    setState(() {
+      isLoading = true;
+    });
     PhoneAuthCredential credential = PhoneAuthProvider.credential(
         verificationId: verifyID.toString(), smsCode: code.toString());
     await auth.signInWithCredential(credential);
@@ -117,23 +121,36 @@ class _VerifySMSState extends State<VerifySMS> {
               const SizedBox(
                 height: 20,
               ),
-              SizedBox(
+              Container(
                 width: double.infinity,
                 height: 45,
-                child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green.shade600,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10))),
-                    onPressed: () {
-                      verify(
-                          code!.text,
-                          VerifySMS.verifyID!,
-                          widget.processing!,
-                          FirebaseAuth.instance.currentUser!.uid);
-                      print('ID: ' + FirebaseAuth.instance.currentUser!.uid);
-                    },
-                    child: const Text("Verify Phone Number")),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade600,
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(10),
+                  ),
+                ),
+                child: isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
+                      )
+                    : ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green.shade600,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10))),
+                        onPressed: () {
+                          verify(
+                              code!.text,
+                              VerifySMS.verifyID!,
+                              widget.processing!,
+                              FirebaseAuth.instance.currentUser!.uid);
+                          print(
+                              'ID: ' + FirebaseAuth.instance.currentUser!.uid);
+                        },
+                        child: const Text("Verify Phone Number")),
               ),
             ],
           ),

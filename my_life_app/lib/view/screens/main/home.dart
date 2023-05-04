@@ -1,12 +1,15 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, use_build_context_synchronously, unnecessary_string_interpolations
+import 'dart:io';
 
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
+import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_life_app/models/inherited_widget.dart';
 import 'package:my_life_app/models/style.dart';
+import 'package:my_life_app/repository/service/flask_api_service.dart';
 import 'package:my_life_app/view/screens/main/news_screen.dart';
 import 'package:my_life_app/view/screens/main/notification_mana.dart';
 import 'package:my_life_app/view/screens/main/notification_screen.dart';
@@ -23,9 +26,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectitem = 0;
 
-  XFile? image;
+  dynamic image;
   ImagePicker imagePicker = ImagePicker();
   dynamic pickedImageError;
+  dynamic pickedImage;
 
   final List<IconData> icons = [
     Icons.home,
@@ -75,21 +79,41 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  //Get image from camera
   Future<void> pickImageFromCamera() async {
     try {
       final pickedImage = await imagePicker.pickImage(
           source: ImageSource.camera,
-          maxHeight: 300,
-          maxWidth: 300,
+          maxHeight: 400,
+          maxWidth: 400,
           imageQuality: 95);
+      final file = File(pickedImage!.path);
+      final imageFile = await file.readAsBytes();
       setState(() {
-        image = pickedImage;
+        this.pickedImage = pickedImage;
+        image = imageFile;
       });
     } catch (e) {
       pickedImageError = e;
       print(pickedImageError);
     }
   }
+
+  // Future<void> SendingImage() async {
+  //   try {
+  //     final pickedImage = await imagePicker.pickImage(
+  //         source: ImageSource.camera,
+  //         maxHeight: 400,
+  //         maxWidth: 400,
+  //         imageQuality: 95);
+  //     final file = File(pickedImage!.path);
+  //     final imageFile = await file.readAsBytes();
+  //     imageSendings = await FlaskApi.sendImage(imageFile);
+  //     if (imageSendings) {}
+  //   } catch (e) {
+  //     print(e.toString());
+  //   }
+  // }
 
   @override
   void initState() {
@@ -107,14 +131,32 @@ class _HomeScreenState extends State<HomeScreen> {
         floatingActionButton: FloatingActionButton(
           backgroundColor: AppStyle.mainColor,
           onPressed: () {
-            pickImageFromCamera().whenComplete(() => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => NotificationSendingScreen(
-                          documentId: FirebaseAuth.instance.currentUser!.uid,
-                          data: data,
-                          image: image!.path,
-                        ))));
+            pickImageFromCamera().whenComplete(
+              () async {
+                final imageSending = await FlaskApi.sendImage(image);
+                if (imageSending.status == 'Không vết nứt trên hình') {
+                  AnimatedSnackBar.material(
+                    '${imageSending.status}',
+                    duration: const Duration(seconds: 2),
+                    mobileSnackBarPosition: MobileSnackBarPosition.top,
+                    type: AnimatedSnackBarType.warning,
+                  ).show(context);
+                  print(imageSending.status);
+                }
+                if (imageSending.status == 'Có vết nứt trên hình') {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => NotificationSendingScreen(
+                                documentId:
+                                    FirebaseAuth.instance.currentUser!.uid,
+                                data: data,
+                                image: pickedImage!.path,
+                                imageSending: imageSending,
+                              )));
+                }
+              },
+            );
           },
           child: const Icon(
             Icons.camera_alt,
