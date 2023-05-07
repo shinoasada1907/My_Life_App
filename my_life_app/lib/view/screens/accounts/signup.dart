@@ -62,7 +62,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
   }
 
-  //Upload image on firebase storage
+  //Upload image to firebase storage
   Future<void> upLoadImage() async {
     try {
       if (imageFileList!.isNotEmpty) {

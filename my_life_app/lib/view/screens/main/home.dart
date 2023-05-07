@@ -89,6 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
           imageQuality: 95);
       final file = File(pickedImage!.path);
       final imageFile = await file.readAsBytes();
+      print(imageFile.runtimeType);
       setState(() {
         this.pickedImage = pickedImage;
         image = imageFile;
@@ -99,21 +100,31 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Future<void> SendingImage() async {
-  //   try {
-  //     final pickedImage = await imagePicker.pickImage(
-  //         source: ImageSource.camera,
-  //         maxHeight: 400,
-  //         maxWidth: 400,
-  //         imageQuality: 95);
-  //     final file = File(pickedImage!.path);
-  //     final imageFile = await file.readAsBytes();
-  //     imageSendings = await FlaskApi.sendImage(imageFile);
-  //     if (imageSendings) {}
-  //   } catch (e) {
-  //     print(e.toString());
-  //   }
-  // }
+  Future<void> sending() async {
+    final imageSending = await FlaskApi.sendImage(image);
+    if (imageSending.status == 'Không vết nứt trên hình') {
+      AnimatedSnackBar.material(
+        '${imageSending.status}',
+        duration: const Duration(seconds: 2),
+        mobileSnackBarPosition: MobileSnackBarPosition.top,
+        type: AnimatedSnackBarType.warning,
+      ).show(context);
+      print(imageSending.status);
+    }
+    if (imageSending.status == 'Có vết nứt trên hình') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => NotificationSendingScreen(
+            documentId: FirebaseAuth.instance.currentUser!.uid,
+            data: data,
+            image: pickedImage!.path,
+            imageSending: imageSending,
+          ),
+        ),
+      );
+    }
+  }
 
   @override
   void initState() {
@@ -131,32 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
         floatingActionButton: FloatingActionButton(
           backgroundColor: AppStyle.mainColor,
           onPressed: () {
-            pickImageFromCamera().whenComplete(
-              () async {
-                final imageSending = await FlaskApi.sendImage(image);
-                if (imageSending.status == 'Không vết nứt trên hình') {
-                  AnimatedSnackBar.material(
-                    '${imageSending.status}',
-                    duration: const Duration(seconds: 2),
-                    mobileSnackBarPosition: MobileSnackBarPosition.top,
-                    type: AnimatedSnackBarType.warning,
-                  ).show(context);
-                  print(imageSending.status);
-                }
-                if (imageSending.status == 'Có vết nứt trên hình') {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => NotificationSendingScreen(
-                                documentId:
-                                    FirebaseAuth.instance.currentUser!.uid,
-                                data: data,
-                                image: pickedImage!.path,
-                                imageSending: imageSending,
-                              )));
-                }
-              },
-            );
+            pickImageFromCamera().whenComplete(() => sending());
           },
           child: const Icon(
             Icons.camera_alt,

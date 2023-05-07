@@ -2,11 +2,16 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:my_life_app/models/imagesend.dart';
 import 'package:my_life_app/models/style.dart';
 import 'package:my_life_app/view/widgets/auth_widget.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:path/path.dart' as path;
 
 class NotificationSendingScreen extends StatefulWidget {
   NotificationSendingScreen(
@@ -26,8 +31,14 @@ class NotificationSendingScreen extends StatefulWidget {
 }
 
 class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
+  CollectionReference reflect =
+      FirebaseFirestore.instance.collection('Reflect');
+
   TextEditingController? discriptionController;
   ImageSeding? imageSending;
+  String? imagePickedUrl;
+  String? maskUrl;
+  String? imagePicked;
   String latitude = '';
   String longitude = '';
 
@@ -38,6 +49,7 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
     super.initState();
     discriptionController = TextEditingController();
     imageSending = widget.imageSending;
+    imagePicked = widget.image;
   }
 
   //Get location device
@@ -77,6 +89,44 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
     // continue accessing the position of the device.
     return await Geolocator.getCurrentPosition();
   }
+
+  //Upload Imge to firebase
+  Future<void> uploadImage() async {
+    final storageRef = firebase_storage.FirebaseStorage.instance
+        .ref('mask/${path.basename(imageSending!.id)}');
+    String dataUrl = 'data:text/plain;base64,${imageSending!.mask}';
+
+    firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance
+        .ref('image_seding/${path.basename(imagePicked!)}');
+    try {
+      //upload and getDownloadURL image sending
+      await ref.putFile(File(imagePicked!)).whenComplete(() async {
+        await ref.getDownloadURL().then((value) {
+          imagePickedUrl = value;
+        });
+      });
+
+      //upload and getDownloadURL mask image
+      await storageRef
+          .putString(dataUrl, format: PutStringFormat.dataUrl)
+          .whenComplete(() async {
+        maskUrl = await storageRef.getDownloadURL();
+      });
+    } on FirebaseException catch (e) {
+      print(e.toString());
+    }
+  }
+
+  Future<void> reflectPost(
+    String idPost,
+    String userId,
+    String name,
+    String phoneNumber,
+    String description,
+    String location,
+    String imageUrl,
+    String maskUrl,
+  ) async {}
 
   @override
   Widget build(BuildContext context) {
@@ -206,6 +256,12 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
                     print('''Location:
                     Latitude: ${location.latitude.toString()}
                     Longitude: ${location.longitude.toString()}''');
+                    print('ID image: ${imageSending!.id}');
+                    print(imageSending!.mask.toString());
+                    print(imageSending!.mask.runtimeType);
+                    uploadImage().whenComplete(() {
+                      print(imagePickedUrl.toString());
+                    });
                     // Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
