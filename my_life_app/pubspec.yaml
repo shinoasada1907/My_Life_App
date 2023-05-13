@@ -51,9 +51,10 @@ dependencies:
   animated_bottom_navigation_bar: ^1.1.0+1
   equatable: ^2.0.5
   google_maps_flutter: ^2.2.5
-  intl: ^0.17.0
+  intl: ^0.18.1
   animated_snack_bar: ^0.3.1
   geolocator: ^9.0.2
+  geocoding: ^2.1.0
 
 dev_dependencies:
   flutter_test:

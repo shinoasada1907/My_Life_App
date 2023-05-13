@@ -2,16 +2,22 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:my_life_app/models/imagesend.dart';
+import 'package:my_life_app/models/location.dart';
+import 'package:my_life_app/models/reflect.dart';
 import 'package:my_life_app/models/style.dart';
 import 'package:my_life_app/view/widgets/auth_widget.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:path/path.dart' as path;
+import 'package:uuid/uuid.dart';
 
 class NotificationSendingScreen extends StatefulWidget {
   NotificationSendingScreen(
@@ -23,7 +29,7 @@ class NotificationSendingScreen extends StatefulWidget {
   String documentId;
   dynamic data;
   dynamic image;
-  ImageSeding imageSending;
+  ImageSending imageSending;
 
   @override
   State<NotificationSendingScreen> createState() =>
@@ -31,18 +37,14 @@ class NotificationSendingScreen extends StatefulWidget {
 }
 
 class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
-  CollectionReference reflect =
-      FirebaseFirestore.instance.collection('Reflect');
-
   TextEditingController? discriptionController;
-  ImageSeding? imageSending;
+  ImageSending? imageSending;
   String? imagePickedUrl;
   String? maskUrl;
   String? imagePicked;
-  String latitude = '';
-  String longitude = '';
 
   bool ischeck = false;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -117,16 +119,77 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
     }
   }
 
-  Future<void> reflectPost(
-    String idPost,
-    String userId,
-    String name,
-    String phoneNumber,
-    String description,
-    String location,
-    String imageUrl,
-    String maskUrl,
-  ) async {}
+  //Calculate distance from shooting position
+
+  //Post reflect
+  Future<void> reflectPost(Reflect reflect) async {
+    CollectionReference reflects =
+        FirebaseFirestore.instance.collection('Reflect');
+    final postId = const Uuid().v4();
+    try {
+      await reflects.doc(postId).set({
+        'id': postId,
+        'userid': reflect.userId,
+        'username': reflect.userName,
+        'numberphone': reflect.numberPhone,
+        'date': reflect.date,
+        'description': reflect.description,
+        'imagereflect': reflect.imageReflect,
+        'maskimage': reflect.imageSending.mask,
+        'percent': reflect.imageSending.percent,
+        'status': reflect.imageSending.status,
+        'latitude': reflect.location.latitude,
+        'longitude': reflect.location.longitude,
+        'Address':
+            '${reflect.location.street}, ${reflect.location.ward}, ${reflect.location.district}, ${reflect.location.city}',
+        'statusreflect': reflect.status,
+      });
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  //Post
+  Future<void> post() async {
+    setState(() {
+      isLoading = true;
+    });
+    final location = await _determinePosition();
+    List<Placemark> placemarks =
+        await placemarkFromCoordinates(location.latitude, location.longitude);
+    // print(placemarks);
+    Placemark place = placemarks[0];
+    final locationAddress = LocationAddress(
+      street: place.street.toString(),
+      ward: '',
+      district: place.subAdministrativeArea.toString(),
+      city: place.administrativeArea.toString(),
+      latitude: location.latitude.toString(),
+      longitude: location.longitude.toString(),
+    );
+    await uploadImage();
+    final reflect = Reflect(
+      userId: FirebaseAuth.instance.currentUser!.uid,
+      userName: widget.data['name'],
+      numberPhone: widget.data['numberphone'],
+      description: discriptionController!.text,
+      imageReflect: imagePickedUrl.toString(),
+      imageSending: imageSending!,
+      location: locationAddress,
+      date: DateFormat('dd/MM/yyy').format(DateTime.now()).toString(),
+      status: StatusReflect.completed.toString(),
+    );
+    await reflectPost(reflect).whenComplete(() {
+      AnimatedSnackBar.material('Phản ánh thành công',
+              duration: const Duration(seconds: 2),
+              mobileSnackBarPosition: MobileSnackBarPosition.top,
+              type: AnimatedSnackBarType.success)
+          .show(context);
+      setState(() {
+        isLoading = false;
+      });
+    }).whenComplete(() => Navigator.pop(context));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -175,19 +238,30 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
                         const SizedBox(
                           width: 20,
                         ),
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              ischeck = !ischeck;
-                            });
-                          },
-                          style: ElevatedButton.styleFrom(
+                        Container(
+                          decoration: BoxDecoration(
+                            color: AppStyle.mainColor,
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(10),
+                            ),
+                          ),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                ischeck = !ischeck;
+                              });
+                            },
+                            style: ElevatedButton.styleFrom(
                               backgroundColor: AppStyle.mainColor,
                               textStyle: const TextStyle(fontSize: 11),
-                              fixedSize: const Size(65, 30)),
-                          child: const Text(
-                            'Check',
-                            textAlign: TextAlign.center,
+                              fixedSize: const Size(65, 20),
+                              shape: const CircleBorder(),
+                              elevation: 0,
+                            ),
+                            child: const Text(
+                              'Check',
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                         ),
                       ],
@@ -195,7 +269,6 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
                   ],
                 ),
               ),
-
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 10),
                 width: size.width * 0.9,
@@ -236,43 +309,36 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
                   ),
                 ),
               ),
-              // Container(
-              //   margin: const EdgeInsets.symmetric(vertical: 10),
-              //   width: size.width * 0.9,
-              //   height: size.height * 0.3,
-              //   decoration: BoxDecoration(
-              //     border: Border.all(
-              //       width: 1,
-              //     ),
-              //     borderRadius: BorderRadius.circular(15),
-              //   ),
-              //   child: const Center(child: Text('Map')),
-              // ),
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 10),
-                child: ElevatedButton(
-                  onPressed: () async {
-                    final location = await _determinePosition();
-                    print('''Location:
-                    Latitude: ${location.latitude.toString()}
-                    Longitude: ${location.longitude.toString()}''');
-                    print('ID image: ${imageSending!.id}');
-                    print(imageSending!.mask.toString());
-                    print(imageSending!.mask.runtimeType);
-                    uploadImage().whenComplete(() {
-                      print(imagePickedUrl.toString());
-                    });
-                    // Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppStyle.mainColor,
-                    textStyle: const TextStyle(fontSize: 20),
-                    fixedSize: Size(size.width * 0.3, size.height * 0.05),
-                  ),
-                  child: const Text(
-                    'Gửi',
+                width: size.width * 0.3,
+                height: size.height * 0.05,
+                decoration: BoxDecoration(
+                  color: AppStyle.mainColor,
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(10),
                   ),
                 ),
+                child: isLoading
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
+                      )
+                    : ElevatedButton(
+                        onPressed: () {
+                          post();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppStyle.mainColor,
+                          textStyle: const TextStyle(fontSize: 20),
+                          fixedSize: Size(size.width * 0.3, size.height * 0.05),
+                          shape: const CircleBorder(),
+                        ),
+                        child: const Text(
+                          'Gửi',
+                        ),
+                      ),
               ),
             ],
           ),

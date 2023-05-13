@@ -103,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> sending() async {
     final imageSending = await FlaskApi.sendImage(image);
     if (imageSending.status == 'Không vết nứt trên hình') {
-      AnimatedSnackBar.material(
+      await AnimatedSnackBar.material(
         '${imageSending.status}',
         duration: const Duration(seconds: 2),
         mobileSnackBarPosition: MobileSnackBarPosition.top,

@@ -2,13 +2,13 @@
 
 import 'package:uuid/uuid.dart';
 
-class ImageSeding {
+class ImageSending {
   final String id;
   final String status;
   final String percent;
   final String mask;
 
-  ImageSeding(
+  ImageSending(
       {required this.id,
       required this.status,
       required this.percent,
@@ -22,8 +22,8 @@ class ImageSeding {
     };
   }
 
-  factory ImageSeding.fromJson(dynamic json) {
-    return ImageSeding(
+  factory ImageSending.fromJson(dynamic json) {
+    return ImageSending(
       id: const Uuid().v1(),
       status: json['status'].toString(),
       percent: json['phantram'].toString(),

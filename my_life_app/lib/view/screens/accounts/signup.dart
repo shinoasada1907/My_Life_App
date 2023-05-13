@@ -87,7 +87,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   //SignUp account on firebase
-  Future<void> signUp(String name, int id, int numberPhone, String userId,
+  Future<void> signUp(String name, String id, String numberPhone, String userId,
       var imageUrlList) async {
     await data.doc(userId).set({
       'id': userId,
@@ -108,7 +108,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   //SignUp Account
   Future<void> signUpAccount(
-      String name, int id, int numberPhone, String userId) async {
+      String name, String id, String numberPhone, String userId) async {
     await upLoadImage()
         .whenComplete(() => signUp(name, id, numberPhone, userId, imageUrlList))
         .whenComplete(
@@ -319,8 +319,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           });
                           signUpAccount(
                                   name!.text,
-                                  int.parse(cccd!.text),
-                                  int.parse(numberPhone!.text),
+                                  cccd!.text,
+                                  numberPhone!.text,
                                   FirebaseAuth.instance.currentUser!.uid)
                               .whenComplete(() {
                             setState(() {
