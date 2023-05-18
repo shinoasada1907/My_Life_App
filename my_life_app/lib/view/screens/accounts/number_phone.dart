@@ -37,23 +37,26 @@ class _NumberPhoneState extends State<NumberPhone> {
     try {
       await FirebaseAuth.instance
           .verifyPhoneNumber(
-            phoneNumber: '+84${phone.toString()}',
-            verificationCompleted: (PhoneAuthCredential credential) async {
-              await auth.signInWithCredential(credential);
-            },
-            verificationFailed: (FirebaseAuthException e) {},
-            codeSent: (String verificationId, int? resendToken) {
-              VerifySMS.verifyID = verificationId;
-            },
-            codeAutoRetrievalTimeout: (String verificationId) {},
-          )
-          .whenComplete(() => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => VerifySMS(
-                  processing: processing,
-                ),
-              )));
+        phoneNumber: '+84${phone.toString()}',
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          await auth.signInWithCredential(credential);
+          print('Complete');
+        },
+        verificationFailed: (FirebaseAuthException e) {},
+        codeSent: (String verificationId, int? resendToken) {
+          VerifySMS.verifyID = verificationId;
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {},
+      )
+          .whenComplete(() {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => VerifySMS(
+                processing: processing,
+              ),
+            ));
+      });
     } catch (e) {
       print('Error: ${e.toString()}');
     }

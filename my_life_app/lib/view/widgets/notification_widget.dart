@@ -1,25 +1,19 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
-class NotificationWidget extends StatelessWidget {
+class NotificationWidget extends StatefulWidget {
   NotificationWidget({
-    required this.index,
     super.key,
-    required this.url,
-    required this.date,
-    required this.location,
-    this.comment,
-    required this.status,
+    required this.notification,
   });
-  int index;
-  final String url;
-  final String date;
-  final String location;
-  final String? comment;
-  final String status;
+  dynamic notification;
 
+  @override
+  State<NotificationWidget> createState() => _NotificationWidgetState();
+}
+
+class _NotificationWidgetState extends State<NotificationWidget> {
   bool checknull(String? comment) {
     if (comment != null) {
       return true;
@@ -49,8 +43,8 @@ class NotificationWidget extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 child: Image(
-                  image: AssetImage(
-                    url,
+                  image: NetworkImage(
+                    widget.notification['imagereflect'],
                   ),
                   width: 130,
                 ),
@@ -65,47 +59,59 @@ class NotificationWidget extends StatelessWidget {
                         color: Color.fromARGB(218, 7, 201, 245),
                       ),
                       Text(
-                        DateFormat('dd/MM/yyyy').format(DateTime.parse(date)),
+                        widget.notification['date'],
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.location_on,
-                        color: Color.fromARGB(255, 221, 24, 10),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: Text(
-                          location,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.location_on,
+                          color: Color.fromARGB(255, 221, 24, 10),
                         ),
-                      ),
-                    ],
+                        SizedBox(
+                          width: 200,
+                          child: Text(
+                            widget.notification['address'],
+                            style: const TextStyle(
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            // overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.circle,
-                        color: Colors.green,
+                        color:
+                            (widget.notification['statusreflect'] == 'Đã gửi')
+                                ? Colors.green
+                                : (widget.notification['statusreflect'] ==
+                                        'Đã tiếp nhận')
+                                    ? Colors.red
+                                    : Colors.blue,
                       ),
-                      Text(status),
+                      Text(widget.notification['statusreflect']),
                     ],
                   ),
                 ],
               ),
             ],
           ),
-          checknull(comment)
+          checknull(widget.notification['description'])
               ? Padding(
                   padding:
                       const EdgeInsets.symmetric(vertical: 15, horizontal: 8),
                   child: Text(
-                    comment!,
+                    widget.notification['description'],
                     overflow: TextOverflow.ellipsis,
                     maxLines: 2,
                   ),

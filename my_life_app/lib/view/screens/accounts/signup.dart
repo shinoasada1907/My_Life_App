@@ -318,11 +318,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             isLoading = true;
                           });
                           signUpAccount(
-                                  name!.text,
-                                  cccd!.text,
-                                  numberPhone!.text,
-                                  FirebaseAuth.instance.currentUser!.uid)
-                              .whenComplete(() {
+                            name!.text,
+                            cccd!.text,
+                            numberPhone!.text,
+                            FirebaseAuth.instance.currentUser!.uid,
+                          ).whenComplete(() {
                             setState(() {
                               name!.dispose();
                               cccd!.dispose();

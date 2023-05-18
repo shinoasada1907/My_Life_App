@@ -1,13 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:my_life_app/models/inherited_widget.dart';
 import 'package:my_life_app/models/notification.dart';
 import 'package:my_life_app/models/style.dart';
 import 'package:my_life_app/view/screens/minor/information_notification.dart';
 import 'package:my_life_app/view/widgets/notification_widget.dart';
 
 class NotificationManaScreen extends StatefulWidget {
-  const NotificationManaScreen({super.key});
+  final String documentId;
+  const NotificationManaScreen({required this.documentId, super.key});
 
   @override
   State<NotificationManaScreen> createState() => _NotificationManaScreenState();
@@ -42,7 +43,10 @@ class _NotificationManaScreenState extends State<NotificationManaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final data = MyInheritedWidget.of(context).data;
+    final Stream<QuerySnapshot> reflect = FirebaseFirestore.instance
+        .collection('Reflect')
+        .where('userid', isEqualTo: widget.documentId)
+        .snapshots();
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -89,27 +93,54 @@ class _NotificationManaScreenState extends State<NotificationManaScreen> {
             )
           ],
         ),
-        body: ListView.builder(
-          itemCount: notificationList.length,
-          itemBuilder: (context, index) {
-            return InkWell(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => InforNotification(
-                          data: data,
-                          index: index,
-                          documentId: FirebaseAuth.instance.currentUser!.uid),
-                    ));
+        body: StreamBuilder<QuerySnapshot>(
+          stream: reflect,
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.hasError) {
+              return const Text('Something went wrong');
+            }
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+
+            if (snapshot.data!.docs.isEmpty) {
+              return const Center(
+                child: Text(
+                  'Chưa có phản ánh',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+              );
+            }
+
+            return ListView.builder(
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (context, index) {
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => InforNotification(
+                              data: snapshot.data!.docs[index],
+                              index: index,
+                              documentId:
+                                  FirebaseAuth.instance.currentUser!.uid),
+                        ));
+                  },
+                  child: NotificationWidget(
+                    notification: snapshot.data!.docs[index],
+                  ),
+                );
               },
-              child: NotificationWidget(
-                index: index,
-                url: notificationList[index].url!,
-                date: notificationList[index].date!,
-                location: notificationList[index].location!,
-                status: notificationList[index].status!,
-              ),
             );
           },
         ),

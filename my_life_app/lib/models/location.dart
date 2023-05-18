@@ -1,4 +1,5 @@
 class LocationAddress {
+  final String name;
   final String street;
   final String ward;
   final String district;
@@ -7,6 +8,7 @@ class LocationAddress {
   final String longitude;
 
   LocationAddress({
+    required this.name,
     required this.street,
     required this.ward,
     required this.district,

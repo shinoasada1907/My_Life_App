@@ -7,11 +7,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:my_life_app/models/imagesend.dart';
-import 'package:my_life_app/models/location.dart';
 import 'package:my_life_app/models/reflect.dart';
 import 'package:my_life_app/models/style.dart';
 import 'package:my_life_app/view/widgets/auth_widget.dart';
@@ -25,11 +22,13 @@ class NotificationSendingScreen extends StatefulWidget {
       required this.data,
       required this.image,
       required this.imageSending,
+      required this.location,
       super.key});
   String documentId;
   dynamic data;
   dynamic image;
   ImageSending imageSending;
+  dynamic location;
 
   @override
   State<NotificationSendingScreen> createState() =>
@@ -38,10 +37,13 @@ class NotificationSendingScreen extends StatefulWidget {
 
 class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
   TextEditingController? discriptionController;
+  TextEditingController? address;
   ImageSending? imageSending;
   String? imagePickedUrl;
   String? maskUrl;
   String? imagePicked;
+  // LocationAddress? locationAddress;
+  // dynamic location;
 
   bool ischeck = false;
   bool isLoading = false;
@@ -50,46 +52,12 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
   void initState() {
     super.initState();
     discriptionController = TextEditingController();
+    address = TextEditingController(
+        text:
+            '${widget.location.name}, ${widget.location.street}, ${widget.location.ward}, ${widget.location.district}, ${widget.location.city}');
     imageSending = widget.imageSending;
     imagePicked = widget.image;
-  }
-
-  //Get location device
-  Future<Position> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        // Permissions are denied, next time you could try
-        // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle appropriately.
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-
-    // When we reach here, permissions are granted and we can
-    // continue accessing the position of the device.
-    return await Geolocator.getCurrentPosition();
+    // getLocation();
   }
 
   //Upload Imge to firebase
@@ -140,8 +108,7 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
         'status': reflect.imageSending.status,
         'latitude': reflect.location.latitude,
         'longitude': reflect.location.longitude,
-        'Address':
-            '${reflect.location.street}, ${reflect.location.ward}, ${reflect.location.district}, ${reflect.location.city}',
+        'address': address!.text,
         'statusreflect': reflect.status,
       });
     } catch (e) {
@@ -154,19 +121,6 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
     setState(() {
       isLoading = true;
     });
-    final location = await _determinePosition();
-    List<Placemark> placemarks =
-        await placemarkFromCoordinates(location.latitude, location.longitude);
-    // print(placemarks);
-    Placemark place = placemarks[0];
-    final locationAddress = LocationAddress(
-      street: place.street.toString(),
-      ward: '',
-      district: place.subAdministrativeArea.toString(),
-      city: place.administrativeArea.toString(),
-      latitude: location.latitude.toString(),
-      longitude: location.longitude.toString(),
-    );
     await uploadImage();
     final reflect = Reflect(
       userId: FirebaseAuth.instance.currentUser!.uid,
@@ -175,9 +129,9 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
       description: discriptionController!.text,
       imageReflect: imagePickedUrl.toString(),
       imageSending: imageSending!,
-      location: locationAddress,
+      location: widget.location,
       date: DateFormat('dd/MM/yyy').format(DateTime.now()).toString(),
-      status: StatusReflect.completed.toString(),
+      status: 'Đã gửi',
     );
     await reflectPost(reflect).whenComplete(() {
       AnimatedSnackBar.material('Phản ánh thành công',
@@ -295,6 +249,16 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
                 margin: const EdgeInsets.symmetric(vertical: 10),
                 width: size.width * 0.9,
                 child: TextFormField(
+                  controller: address,
+                  decoration: textFormDecoration.copyWith(
+                    labelText: 'Địa chỉ',
+                  ),
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 10),
+                width: size.width * 0.9,
+                child: TextFormField(
                   validator: (value) {
                     if (value!.isEmpty) {
                       return 'Vui lòng nhập nội dung muốn phản ánh';
@@ -302,7 +266,7 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
                     return null;
                   },
                   controller: discriptionController,
-                  maxLines: 6,
+                  maxLines: 4,
                   decoration: textFormDecoration.copyWith(
                     labelText: 'Mô tả',
                     hintText: 'Điền mô tả phản ánh',
