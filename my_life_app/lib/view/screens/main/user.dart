@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:my_life_app/models/style.dart';
-import 'package:my_life_app/view/screens/minor/near_location.dart';
-import 'package:my_life_app/view/screens/minor/news_screen.dart';
+
+import '../minor/near_location.dart';
+import '../minor/news_screen.dart';
 
 class UserScreen extends StatefulWidget {
   final String documentId;

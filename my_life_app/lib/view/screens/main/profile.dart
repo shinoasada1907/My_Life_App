@@ -8,9 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_life_app/models/style.dart';
 import 'package:my_life_app/view/screens/main/notification_screen.dart';
-import 'package:my_life_app/view/screens/minor/information_screen.dart';
-import 'package:my_life_app/view/screens/minor/setting_screen.dart';
-import 'package:my_life_app/view/widgets/profile_widget.dart';
+
+import '../../widgets/profile_widget.dart';
+import '../minor/information_screen.dart';
+import '../minor/setting_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String documentId;

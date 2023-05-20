@@ -8,8 +8,9 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:my_life_app/models/user.dart';
-import 'package:my_life_app/view/screens/accounts/verify.dart';
 import 'package:path/path.dart' as path;
+
+import '../../view/screens/accounts/verify.dart';
 
 class AuthRepository {
   static FirebaseAuth auth = FirebaseAuth.instance;

@@ -11,7 +11,7 @@ class MyInheritedWidget extends InheritedWidget {
 
   @override
   bool updateShouldNotify(covariant MyInheritedWidget oldWidget) {
-    return oldWidget.data != data;
+    return oldWidget.data != data && oldWidget.location != location;
   }
 
   static MyInheritedWidget of(BuildContext context) {

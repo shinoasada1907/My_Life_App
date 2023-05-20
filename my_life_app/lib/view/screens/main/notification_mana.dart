@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:my_life_app/models/notification.dart';
+import 'package:intl/intl.dart';
 import 'package:my_life_app/models/style.dart';
-import 'package:my_life_app/view/screens/minor/information_notification.dart';
-import 'package:my_life_app/view/widgets/notification_widget.dart';
+import 'package:my_life_app/view/mobile/widgets/notification_widget.dart';
+
+import '../minor/information_notification.dart';
 
 class NotificationManaScreen extends StatefulWidget {
   final String documentId;
@@ -16,28 +17,26 @@ class NotificationManaScreen extends StatefulWidget {
 
 class _NotificationManaScreenState extends State<NotificationManaScreen> {
   String dropdownValue = 'Mới nhất';
-  List<String> options = ['Mới nhất', 'Đã gửi', 'Đang xử lý', 'Đã xử lý'];
+  List<String> options = ['Mới nhất', 'Đã gửi', 'Đã tiếp nhận', 'Đã xử lý'];
   bool isDropdownValue = false;
+  List<DocumentSnapshot> documents = [];
 
-  List<NotificationModel> notificationList = [];
+  List<DocumentSnapshot> listreflect = [];
 
   @override
   void initState() {
     super.initState();
-    notifiList.sort(
-      (a, b) => b.date!.compareTo(a.date!),
-    );
-    notificationList = notifiList;
   }
 
   void filterList() {
     if (isDropdownValue) {
-      notificationList = notifiList
-          .where((element) =>
-              element.status == dropdownValue || dropdownValue == 'Mới nhất')
-          .toList();
-    } else {
-      notificationList = List.from(notifiList);
+      setState(() {
+        documents = listreflect
+            .where((element) =>
+                element['statusreflect'].toString() == dropdownValue ||
+                dropdownValue == 'Mới nhất')
+            .toList();
+      });
     }
   }
 
@@ -97,6 +96,18 @@ class _NotificationManaScreenState extends State<NotificationManaScreen> {
           stream: reflect,
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.hasData) {
+              listreflect = snapshot.data!.docs;
+              listreflect.sort(
+                (a, b) => DateFormat('dd/MM/yyy')
+                    .parse(b.get('date'))
+                    .compareTo(DateFormat('dd/MM/yyy').parse(a.get('date'))),
+              );
+              if (dropdownValue == 'Mới nhất') {
+                documents = listreflect;
+              }
+            }
+
             if (snapshot.hasError) {
               return const Text('Something went wrong');
             }
@@ -122,7 +133,7 @@ class _NotificationManaScreenState extends State<NotificationManaScreen> {
             }
 
             return ListView.builder(
-              itemCount: snapshot.data!.docs.length,
+              itemCount: documents.length,
               itemBuilder: (context, index) {
                 return InkWell(
                   onTap: () {
@@ -130,14 +141,14 @@ class _NotificationManaScreenState extends State<NotificationManaScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => InforNotification(
-                              data: snapshot.data!.docs[index],
+                              data: documents[index],
                               index: index,
                               documentId:
                                   FirebaseAuth.instance.currentUser!.uid),
                         ));
                   },
                   child: NotificationWidget(
-                    notification: snapshot.data!.docs[index],
+                    notification: documents[index],
                   ),
                 );
               },

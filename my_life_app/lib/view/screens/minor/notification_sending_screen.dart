@@ -11,10 +11,11 @@ import 'package:intl/intl.dart';
 import 'package:my_life_app/models/imagesend.dart';
 import 'package:my_life_app/models/reflect.dart';
 import 'package:my_life_app/models/style.dart';
-import 'package:my_life_app/view/widgets/auth_widget.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:path/path.dart' as path;
 import 'package:uuid/uuid.dart';
+
+import '../../widgets/auth_widget.dart';
 
 class NotificationSendingScreen extends StatefulWidget {
   NotificationSendingScreen(

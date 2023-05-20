@@ -9,9 +9,10 @@ import 'package:my_life_app/models/inherited_widget.dart';
 import 'package:my_life_app/models/style.dart';
 import 'package:my_life_app/view/screens/accounts/signup.dart';
 import 'package:my_life_app/view/screens/accounts/verify.dart';
-import 'package:my_life_app/view/widgets/auth_widget.dart';
 
-import '../../../models/location.dart';
+import '../../../../models/location.dart';
+import '../../widgets/auth_widget.dart';
+import '../main/home.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -24,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
   FirebaseAuth auth = FirebaseAuth.instance;
 
   bool isLoading = false;
-  dynamic address;
+  LocationAddress? address;
   TextEditingController? phone;
 
   @override
@@ -106,7 +107,11 @@ class _LoginScreenState extends State<LoginScreen> {
         codeAutoRetrievalTimeout: (String verificationId) {},
       )
           .whenComplete(() {
-        Navigator.pushReplacementNamed(context, '/home_screen');
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomeScreen(location: address),
+            ));
       });
     } catch (e) {
       print('Error: ${e.toString()}');
@@ -133,14 +138,17 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> loginWithGoogle(String uid) async {
-    await getLocation();
     FirebaseFirestore.instance
         .collection('UserAccount')
         .doc(uid)
         .get()
         .then((DocumentSnapshot snapshot) {
       if (snapshot.exists) {
-        Navigator.pushReplacementNamed(context, '/home_screen');
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomeScreen(location: address),
+            ));
       } else {
         Navigator.push(
           context,
@@ -246,11 +254,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                   shape: const CircleBorder(),
                                   elevation: 0,
                                 ),
-                                onPressed: () {
+                                onPressed: () async {
                                   setState(() {
                                     isLoading = true;
                                   });
-                                  loginOTPPhone(phone!.text, true);
+                                  await getLocation().whenComplete(
+                                    () => loginOTPPhone(phone!.text, true),
+                                  );
                                 },
                                 child: const Center(
                                   child: Text(
@@ -295,16 +305,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                   shape: const CircleBorder(),
                                   elevation: 0,
                                 ),
-                                onPressed: () {
+                                onPressed: () async {
                                   setState(() {
                                     isLoading = true;
                                   });
-                                  signInWithGoogle().whenComplete(() {
-                                    loginWithGoogle(
-                                        FirebaseAuth.instance.currentUser!.uid);
-                                    print(
-                                        FirebaseAuth.instance.currentUser!.uid);
-                                  });
+                                  await getLocation().whenComplete(
+                                    () => signInWithGoogle().whenComplete(() {
+                                      loginWithGoogle(FirebaseAuth
+                                          .instance.currentUser!.uid);
+                                      print(FirebaseAuth
+                                          .instance.currentUser!.uid);
+                                    }),
+                                  );
                                 },
                                 child: Center(
                                   child: Text(

@@ -12,16 +12,17 @@ import 'package:image_picker/image_picker.dart';
 import 'package:my_life_app/models/inherited_widget.dart';
 import 'package:my_life_app/models/style.dart';
 import 'package:my_life_app/repository/service/flask_api_service.dart';
-import 'package:my_life_app/view/screens/main/user.dart';
 import 'package:my_life_app/view/screens/main/notification_mana.dart';
 import 'package:my_life_app/view/screens/main/notification_screen.dart';
 import 'package:my_life_app/view/screens/main/profile.dart';
-import 'package:my_life_app/view/screens/minor/notification_sending_screen.dart';
+import 'package:my_life_app/view/screens/main/user.dart';
 
-import '../../../models/location.dart';
+import '../../../../models/location.dart';
+import '../minor/notification_sending_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final LocationAddress? location;
+  const HomeScreen({this.location, super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -199,11 +200,13 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     getdata();
+    print(widget.location!.street);
   }
 
   @override
   Widget build(BuildContext context) {
     return MyInheritedWidget(
+      location: widget.location,
       data: data,
       child: Scaffold(
         backgroundColor: AppStyle.bgColor,

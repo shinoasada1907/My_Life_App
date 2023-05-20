@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_life_app/models/style.dart';
-import 'package:my_life_app/view/widgets/notification_widget.dart';
+import 'package:my_life_app/view/mobile/widgets/notification_widget.dart';
 import '../minor/information_notification.dart';
 
 class NotificationScreen extends StatefulWidget {

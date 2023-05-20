@@ -5,7 +5,7 @@ import 'package:my_life_app/models/imagesend.dart';
 
 class FlaskApi {
   static Future<ImageSending> sendImage(dynamic image) async {
-    const String url = 'http://192.168.69.33:5000/image';
+    const String url = 'http:// 192.168.19.33:5000/image';
     final uri = Uri.parse(url);
     final respone = await http.post(uri, body: image);
     if (respone.statusCode == 200) {

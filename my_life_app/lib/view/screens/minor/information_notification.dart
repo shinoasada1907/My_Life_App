@@ -1,7 +1,7 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:flutter/material.dart';
-import '../../../models/style.dart';
+import '../../../../models/style.dart';
 import '../../widgets/auth_widget.dart';
 
 class InforNotification extends StatelessWidget {

@@ -3,7 +3,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_life_app/view/screens/accounts/verify.dart';
-import '../../../models/style.dart';
+import '../../../../models/style.dart';
 import '../../widgets/auth_widget.dart';
 
 class NumberPhone extends StatefulWidget {
