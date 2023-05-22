@@ -9,6 +9,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_life_app/models/imagesend.dart';
+import 'package:my_life_app/models/location.dart';
 import 'package:my_life_app/models/reflect.dart';
 import 'package:my_life_app/models/style.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -29,7 +30,7 @@ class NotificationSendingScreen extends StatefulWidget {
   dynamic data;
   dynamic image;
   ImageSending imageSending;
-  dynamic location;
+  LocationAddress? location;
 
   @override
   State<NotificationSendingScreen> createState() =>
@@ -55,10 +56,11 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
     discriptionController = TextEditingController();
     address = TextEditingController(
         text:
-            '${widget.location.name}, ${widget.location.street}, ${widget.location.ward}, ${widget.location.district}, ${widget.location.city}');
+            '${widget.location!.name}, ${widget.location!.street}, ${widget.location!.ward}, ${widget.location!.district}, ${widget.location!.city}');
     imageSending = widget.imageSending;
     imagePicked = widget.image;
-    // getLocation();
+    print(
+        '${widget.location!.name}, ${widget.location!.street}, ${widget.location!.ward}, ${widget.location!.district}, ${widget.location!.city}');
   }
 
   //Upload Imge to firebase
@@ -130,20 +132,22 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
       description: discriptionController!.text,
       imageReflect: imagePickedUrl.toString(),
       imageSending: imageSending!,
-      location: widget.location,
+      location: widget.location!,
       date: DateFormat('dd/MM/yyy').format(DateTime.now()).toString(),
       status: 'Đã gửi',
     );
     await reflectPost(reflect).whenComplete(() {
       AnimatedSnackBar.material('Phản ánh thành công',
-              duration: const Duration(seconds: 2),
+              duration: const Duration(seconds: 3),
               mobileSnackBarPosition: MobileSnackBarPosition.top,
               type: AnimatedSnackBarType.success)
           .show(context);
       setState(() {
         isLoading = false;
       });
-    }).whenComplete(() => Navigator.pop(context));
+    }).whenComplete(
+      () => Navigator.pop(context),
+    );
   }
 
   @override

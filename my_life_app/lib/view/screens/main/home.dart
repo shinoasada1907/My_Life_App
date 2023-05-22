@@ -6,8 +6,6 @@ import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_life_app/models/inherited_widget.dart';
 import 'package:my_life_app/models/style.dart';
@@ -35,9 +33,6 @@ class _HomeScreenState extends State<HomeScreen> {
   ImagePicker imagePicker = ImagePicker();
   dynamic pickedImageError;
   dynamic pickedImage;
-
-  dynamic location;
-  LocationAddress? locationAddress;
 
   final List<IconData> icons = [
     Icons.home,
@@ -114,15 +109,28 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> sending() async {
-    await getLocation();
+    // await getLocation();
     final imageSending = await FlaskApi.sendImage(image);
     if (imageSending.status == 'Không vết nứt trên hình') {
       await AnimatedSnackBar.material(
         '${imageSending.status}',
-        duration: const Duration(seconds: 2),
+        duration: const Duration(seconds: 4),
         mobileSnackBarPosition: MobileSnackBarPosition.top,
         type: AnimatedSnackBarType.warning,
-      ).show(context);
+      ).show(context).whenComplete(
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => NotificationSendingScreen(
+                  documentId: FirebaseAuth.instance.currentUser!.uid,
+                  data: data,
+                  image: pickedImage!.path,
+                  imageSending: imageSending,
+                  location: widget.location,
+                ),
+              ),
+            ),
+          );
       print(imageSending.status);
     }
     if (imageSending.status == 'Có vết nứt trên hình') {
@@ -134,72 +142,18 @@ class _HomeScreenState extends State<HomeScreen> {
             data: data,
             image: pickedImage!.path,
             imageSending: imageSending,
-            location: locationAddress,
+            location: widget.location,
           ),
         ),
       );
     }
   }
 
-  //Get location device
-  Future<Position> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        // Permissions are denied, next time you could try
-        // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle appropriately.
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-
-    // When we reach here, permissions are granted and we can
-    // continue accessing the position of the device.
-    return await Geolocator.getCurrentPosition();
-  }
-
-  Future<void> getLocation() async {
-    location = await _determinePosition();
-    List<Placemark> placemarks =
-        await placemarkFromCoordinates(location.latitude, location.longitude);
-    // print(placemarks);
-    Placemark place = placemarks[1];
-    locationAddress = LocationAddress(
-      name: place.name.toString(),
-      street: place.street.toString(),
-      ward: '',
-      district: place.subAdministrativeArea.toString(),
-      city: place.administrativeArea.toString(),
-      latitude: location.latitude.toString(),
-      longitude: location.longitude.toString(),
-    );
-  }
-
   @override
   void initState() {
     super.initState();
     getdata();
+    print(widget.location!.name);
     print(widget.location!.street);
   }
 

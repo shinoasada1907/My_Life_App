@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_life_app/models/news.dart';
-import 'package:my_life_app/view/mobile/screens/minor/read_news_screen.dart';
+import 'package:my_life_app/view/screens/minor/read_news_screen.dart';
 
 class NewsScreen extends StatefulWidget {
   const NewsScreen({super.key});

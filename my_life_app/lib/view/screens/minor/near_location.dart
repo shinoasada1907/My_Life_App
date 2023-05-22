@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:my_life_app/models/inherited_widget.dart';
 import 'package:my_life_app/view/screens/minor/information_notification.dart';
 import '../../../../models/location.dart';
@@ -55,6 +56,11 @@ class _NearLocationUserState extends State<NearLocationUser> {
                 .where(
                     (element) => element['address'].contains(address!.street))
                 .toList();
+            listreflect.sort(
+              (a, b) => DateFormat('dd/MM/yyy')
+                  .parse(b.get('date'))
+                  .compareTo(DateFormat('dd/MM/yyy').parse(a.get('date'))),
+            );
             documents = listreflect;
           }
 

@@ -1,10 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:my_life_app/models/style.dart';
-import 'package:my_life_app/view/mobile/widgets/notification_widget.dart';
 
+import '../../widgets/notification_widget.dart';
 import '../minor/information_notification.dart';
 
 class NotificationManaScreen extends StatefulWidget {
@@ -143,8 +142,7 @@ class _NotificationManaScreenState extends State<NotificationManaScreen> {
                           builder: (context) => InforNotification(
                               data: documents[index],
                               index: index,
-                              documentId:
-                                  FirebaseAuth.instance.currentUser!.uid),
+                              documentId: widget.documentId),
                         ));
                   },
                   child: NotificationWidget(

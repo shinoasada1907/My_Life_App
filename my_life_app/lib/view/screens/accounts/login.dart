@@ -309,7 +309,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   setState(() {
                                     isLoading = true;
                                   });
-                                  await getLocation().whenComplete(
+                                  getLocation().whenComplete(
                                     () => signInWithGoogle().whenComplete(() {
                                       loginWithGoogle(FirebaseAuth
                                           .instance.currentUser!.uid);
