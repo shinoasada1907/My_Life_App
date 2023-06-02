@@ -183,16 +183,18 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          imageSending!.status,
-                          style: const TextStyle(fontSize: 15),
-                        ),
-                        const SizedBox(
-                          width: 20,
-                        ),
-                        Text(
-                          'Tỷ lệ: ${imageSending!.percent}%',
-                          style: const TextStyle(fontSize: 15),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              imageSending!.status,
+                              style: const TextStyle(fontSize: 15),
+                            ),
+                            Text(
+                              'Tỷ lệ vết nứt so với toàn khung hình: ${imageSending!.percent}%',
+                              style: const TextStyle(fontSize: 15),
+                            ),
+                          ],
                         ),
                         const SizedBox(
                           width: 20,

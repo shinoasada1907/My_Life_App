@@ -4,19 +4,28 @@ class News {
   final String? url;
   final String? categories;
 
-  News(this.title, this.description, this.url, this.categories);
+  News({this.title, this.description, this.url, this.categories});
+
+  factory News.fromJson(dynamic json) {
+    return News(
+      title: json['title'].toString(),
+      description: json['description'].toString(),
+      url: json['url'].toString(),
+      categories: json['categories'],
+    );
+  }
 }
 
 List<News> newslist = [
   News(
-    'Tin tức giao thông mới nhất hôm nay',
-    'Tai nạn giao thông kinh hoàn khiến 12 người thiệt mạng',
-    'assets/images/tainan.jpg',
-    'Tin tức Giao thông',
+    title: 'Tin tức giao thông mới nhất hôm nay',
+    description: 'Tai nạn giao thông kinh hoàn khiến 12 người thiệt mạng',
+    url: 'assets/images/tainan.jpg',
+    categories: 'Tin tức Giao thông',
   ),
   News(
-    'Tin tức giao thông ngày 22/3',
-    '''
+    title: 'Tin tức giao thông ngày 22/3',
+    description: '''
       Bạn đọc Báo Thanh Niên bày tỏ sự bức xúc với tình trạng xe chở hàng hóa cồng kềnh trên đường phố gây tai nạn nghiêm trọng cho người đi đường, yêu cầu cơ quan chức năng, nhất là CSGT, phải xử phạt quyết liệt hơn.
       Như Thanh Niên đưa tin, khoảng 16 giờ ngày 24.5, một nam thanh niên điều khiển xe máy chở theo bao tải hàng hóa cồng kềnh phía sau, chạy trên đường số 7, khu công nghiệp Vĩnh Lộc, P.Bình Hưng Hòa B, Q.Bình Tân (TP.HCM) hướng ra QL1. Khi qua giao lộ đường số 7 - đường số 2 khoảng 50 m, bao tải hàng hóa trên xe của nam thanh niên va vào tay lái xe máy của người phụ nữ (42 tuổi, quê Quảng Trị), lưu thông cùng chiều, khiến người phụ nữ ngã ra đường và bị chính xe máy của mình đè lên người. Nạn nhân được đưa vào một phòng khám đa khoa cấp cứu trong tình trạng đa chấn thương, gãy lìa xương chân. Phòng khám sau đó phải chuyển gấp nạn nhân lên tuyến trên để tiếp tục điều trị.
       Đừng vì mưu sinh gây họa cho người khác
@@ -27,79 +36,85 @@ List<News> newslist = [
       Đáng chú ý, một số BĐ cho rằng không chỉ người chở hàng có lỗi mà chủ thuê chở hàng cũng phải chịu trách nhiệm. Theo BĐ Nam Doan: “Tôi nhận thấy không chỉ có trách nhiệm của người chở hàng, mà đồng thời người chủ hàng cũng phải liên đới chịu trách nhiệm”. Tương tự, BĐ Quang Hải Phù bày tỏ: “Nên xử phạt cả người chở hàng cồng kềnh lẫn chủ hàng vì lợi nhuận mà khiến người khác chở hàng cồng kềnh để giảm chi phí”.
       
     ''',
-    'assets/images/tainan1.jpg',
-    'Tin tức giao thông',
+    url: 'assets/images/tainan1.jpg',
+    categories: 'Tin tức giao thông',
   ),
   News(
-    'Tin tức giao thông đường bộ mới nhất hôm nay',
-    'Đoạn tuyến đường đi vũng tàu Đồng Nai có nhiều nơi xuất hiện các ổ gà ổ voi khiến cho giao thông khu vực này thường xuyên xảy ra tai nạn gây nên sự bất an cho người dân nơi đây',
-    'assets/images/duonghu1.jpg',
-    'Tin tức giao thông',
+    title: 'Tin tức giao thông đường bộ mới nhất hôm nay',
+    description:
+        'Đoạn tuyến đường đi vũng tàu Đồng Nai có nhiều nơi xuất hiện các ổ gà ổ voi khiến cho giao thông khu vực này thường xuyên xảy ra tai nạn gây nên sự bất an cho người dân nơi đây',
+    url: 'assets/images/duonghu1.jpg',
+    categories: 'Tin tức giao thông',
   ),
   News(
-    'Tin tức giao thông mới nhất hôm nay',
-    'Hiện tượng ùn tắc giao thông thường xuyên xảy ra trên tuyến đường Lê Văn Việt đi ngã tư Thủ Đức',
-    'assets/images/ketxe.jpg',
-    'Tin tức giao thông',
+    title: 'Tin tức giao thông mới nhất hôm nay',
+    description:
+        'Hiện tượng ùn tắc giao thông thường xuyên xảy ra trên tuyến đường Lê Văn Việt đi ngã tư Thủ Đức',
+    url: 'assets/images/ketxe.jpg',
+    categories: 'Tin tức giao thông',
   ),
   News(
-    'Tin tức lũ lụt mới nhất hôm nay',
-    'Lũ lụt xuất hiện nhiều nơi trên toàn quốc',
-    'assets/images/lulut.jpg',
-    'Tin lũ lụt',
+    title: 'Tin tức lũ lụt mới nhất hôm nay',
+    description: 'Lũ lụt xuất hiện nhiều nơi trên toàn quốc',
+    url: 'assets/images/lulut.jpg',
+    categories: 'Tin lũ lụt',
   ),
   News(
-    'Đồng hành cùng đồng bào Miền Trung',
-    'Với việc mưa liên tục trong nhiều ngày qua thì Miền Trung sắp đón nhận trận lũ lụt lớn nhất lịch sử',
-    'assets/images/lulutmientrung.jpg',
-    'Tin lũ lụt',
+    title: 'Đồng hành cùng đồng bào Miền Trung',
+    description:
+        'Với việc mưa liên tục trong nhiều ngày qua thì Miền Trung sắp đón nhận trận lũ lụt lớn nhất lịch sử',
+    url: 'assets/images/lulutmientrung.jpg',
+    categories: 'Tin lũ lụt',
   ),
   News(
-    'Tin tức giao thông mới nhất hôm nay',
-    'Trên tuyến đường Võ Văn Ngân đi chợ Thủ Đức thường xuyên bị ngập ún mỗi khi mưa lớn kéo dài',
-    'assets/images/ngaplut.jpg',
-    'Tin tức giao thông',
+    title: 'Tin tức giao thông mới nhất hôm nay',
+    description:
+        'Trên tuyến đường Võ Văn Ngân đi chợ Thủ Đức thường xuyên bị ngập ún mỗi khi mưa lớn kéo dài',
+    url: 'assets/images/ngaplut.jpg',
+    categories: 'Tin tức giao thông',
   ),
   News(
-    'Tin tức giao thông mới nhất hôm nay',
-    'Đường hư',
-    'assets/images/duonghu1.jpg',
-    'Tin tức giao thông',
+    title: 'Tin tức giao thông mới nhất hôm nay',
+    description: 'Đường hư',
+    url: 'assets/images/duonghu1.jpg',
+    categories: 'Tin tức giao thông',
   ),
   News(
-    'Tin tức giao thông mới nhất hôm nay',
-    'Đường hư 2',
-    'assets/images/duonghu2.jpg',
-    'Tin tức giao thông',
+    title: 'Tin tức giao thông mới nhất hôm nay',
+    description: 'Đường hư 2',
+    url: 'assets/images/duonghu2.jpg',
+    categories: 'Tin tức giao thông',
   ),
   News(
-    'Tin tức lũ lụt mới nhất hôm nay',
-    'Lũ lụt xuất hiện nhiều nơi trên toàn quốc',
-    'assets/images/lulut.jpg',
-    'Tin lũ lụt',
+    title: 'Tin tức lũ lụt mới nhất hôm nay',
+    description: 'Lũ lụt xuất hiện nhiều nơi trên toàn quốc',
+    url: 'assets/images/lulut.jpg',
+    categories: 'Tin lũ lụt',
   ),
   News(
-    'Tin tức giao thông mới nhất hôm nay',
-    'Tai nạn giao thông kinh hoàn khiến 12 người thiệt mạng',
-    'assets/images/tainan.jpg',
-    'Tin tức giao thông',
+    title: 'Tin tức giao thông mới nhất hôm nay',
+    description: 'Tai nạn giao thông kinh hoàn khiến 12 người thiệt mạng',
+    url: 'assets/images/tainan.jpg',
+    categories: 'Tin tức giao thông',
   ),
   News(
-    'Tin tức lũ lụt mới nhất hôm nay',
-    'Lũ lụt xuất hiện nhiều nơi trên toàn quốc',
-    'assets/images/lulut.jpg',
-    'Tin lũ lụt',
+    title: 'Tin tức lũ lụt mới nhất hôm nay',
+    description: 'Lũ lụt xuất hiện nhiều nơi trên toàn quốc',
+    url: 'assets/images/lulut.jpg',
+    categories: 'Tin lũ lụt',
   ),
   News(
-    'Tin tức giao thông đường bộ mới nhất hôm nay',
-    'Đoạn tuyến đường đi vũng tàu Đồng Nai có nhiều nơi xuất hiện các ổ gà ổ voi khiến cho giao thông khu vực này thường xuyên xảy ra tai nạn gây nên sự bất an cho người dân nơi đây',
-    'assets/images/duonghu1.jpg',
-    'Tin tức giao thông',
+    title: 'Tin tức giao thông đường bộ mới nhất hôm nay',
+    description:
+        'Đoạn tuyến đường đi vũng tàu Đồng Nai có nhiều nơi xuất hiện các ổ gà ổ voi khiến cho giao thông khu vực này thường xuyên xảy ra tai nạn gây nên sự bất an cho người dân nơi đây',
+    url: 'assets/images/duonghu1.jpg',
+    categories: 'Tin tức giao thông',
   ),
   News(
-    'Tin tức giao thông đường bộ mới nhất hôm nay',
-    'Đoạn tuyến đường đi vũng tàu Đồng Nai có nhiều nơi xuất hiện các ổ gà ổ voi khiến cho giao thông khu vực này thường xuyên xảy ra tai nạn gây nên sự bất an cho người dân nơi đây',
-    'assets/images/duonghu1.jpg',
-    'Tin tức giao thông',
+    title: 'Tin tức giao thông đường bộ mới nhất hôm nay',
+    description:
+        'Đoạn tuyến đường đi vũng tàu Đồng Nai có nhiều nơi xuất hiện các ổ gà ổ voi khiến cho giao thông khu vực này thường xuyên xảy ra tai nạn gây nên sự bất an cho người dân nơi đây',
+    url: 'assets/images/duonghu1.jpg',
+    categories: 'Tin tức giao thông',
   ),
 ];

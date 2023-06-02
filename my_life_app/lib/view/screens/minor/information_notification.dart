@@ -85,6 +85,7 @@ class _InforNotificationState extends State<InforNotification> {
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
                       margin: const EdgeInsets.only(
@@ -110,9 +111,15 @@ class _InforNotificationState extends State<InforNotification> {
                         ],
                       ),
                     ),
-                    SizedBox(
-                      child: Text(
-                          'Đánh giá: ${widget.data['status']} \t\t\t\t\t\t\t\t Tỉ lệ hư: ${widget.data['percent']}%'),
+                    Container(
+                      margin: const EdgeInsets.only(left: 25),
+                      child: Column(
+                        children: [
+                          Text('Đánh giá: ${widget.data['status']} '),
+                          Text(
+                              'Tỉ lệ so với khung hình: ${widget.data['percent']}%'),
+                        ],
+                      ),
                     )
                   ],
                 ),
