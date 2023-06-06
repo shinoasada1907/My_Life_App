@@ -14,7 +14,7 @@ import 'package:my_life_app/view/screens/main/notification_mana.dart';
 import 'package:my_life_app/view/screens/main/notification_screen.dart';
 import 'package:my_life_app/view/screens/main/profile.dart';
 import 'package:my_life_app/view/screens/main/user.dart';
-
+import 'package:my_life_app/view/widgets/confirm_dialog.dart';
 import '../../../../models/location.dart';
 import '../minor/notification_sending_screen.dart';
 
@@ -168,7 +168,16 @@ class _HomeScreenState extends State<HomeScreen> {
         floatingActionButton: FloatingActionButton(
           backgroundColor: AppStyle.mainColor,
           onPressed: () {
-            pickImageFromCamera().whenComplete(() => sending());
+            ConfirmDialogWidget.showDialog(
+              context: context,
+              message:
+                  'Yêu cầu đối tượng được chụp là các cơ sở hạ tầng bị hư hại.',
+              onTapCancle: () {
+                pickImageFromCamera().whenComplete(() => sending());
+              },
+              onTapConfirm: () => Navigator.pop(context),
+              title: 'Cảnh báo',
+            );
           },
           child: const Icon(
             Icons.camera_alt,
