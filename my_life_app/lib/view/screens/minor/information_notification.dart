@@ -2,6 +2,8 @@
 
 import 'package:animated_snack_bar/animated_snack_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../models/style.dart';
@@ -24,9 +26,11 @@ class InforNotification extends StatefulWidget {
 class _InforNotificationState extends State<InforNotification> {
   CollectionReference reference =
       FirebaseFirestore.instance.collection('Reflect');
+  String currentId = FirebaseAuth.instance.currentUser!.uid;
   TextEditingController? name, numphone, address, description;
   bool isLoading = false;
   bool isUpdate = false;
+  bool isDelete = false;
 
   @override
   void initState() {
@@ -34,6 +38,13 @@ class _InforNotificationState extends State<InforNotification> {
     if (widget.data['statusreflect'] == 'Đã gửi') {
       setState(() {
         isLoading = true;
+        isUpdate = false;
+        isDelete = false;
+      });
+    }
+    if (currentId != widget.data['userid']) {
+      setState(() {
+        isLoading = false;
       });
     }
     name = TextEditingController(text: widget.data['username']);
@@ -53,6 +64,19 @@ class _InforNotificationState extends State<InforNotification> {
       'address': address!.text,
       'description': description!.text,
     }).then((value) => print('update completed'));
+  }
+
+  Future<void> deleteData() async {
+    setState(() {
+      isDelete = true;
+    });
+    final ref =
+        FirebaseStorage.instance.refFromURL(widget.data['imagereflect']);
+    final refmask =
+        FirebaseStorage.instance.refFromURL(widget.data['maskimage']);
+    await ref.delete();
+    await refmask.delete();
+    await reference.doc(widget.data['id']).delete();
   }
 
   @override
@@ -167,47 +191,111 @@ class _InforNotificationState extends State<InforNotification> {
                 ),
               ),
               isLoading
-                  ? Container(
-                      margin: const EdgeInsets.symmetric(vertical: 10),
-                      width: size.width * 0.3,
-                      height: size.height * 0.05,
-                      decoration: BoxDecoration(
-                        color: AppStyle.mainColor,
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(10),
-                        ),
-                      ),
-                      child: isUpdate
-                          ? const Center(
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                              ),
-                            )
-                          : ElevatedButton(
-                              onPressed: () {
-                                updateData()
-                                    .whenComplete(
-                                      () => AnimatedSnackBar.material(
-                                        'Cập nhật dữ liệu thành công',
-                                        duration: const Duration(seconds: 3),
-                                        type: AnimatedSnackBarType.success,
-                                        mobileSnackBarPosition:
-                                            MobileSnackBarPosition.top,
-                                      ).show(context),
-                                    )
-                                    .whenComplete(() => Navigator.pop(context));
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppStyle.mainColor,
-                                textStyle: const TextStyle(fontSize: 20),
-                                fixedSize:
-                                    Size(size.width * 0.3, size.height * 0.05),
-                                shape: const CircleBorder(),
-                              ),
-                              child: const Text(
-                                'Gửi',
-                              ),
+                  ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.symmetric(vertical: 10),
+                          width: size.width * 0.3,
+                          height: size.height * 0.05,
+                          decoration: BoxDecoration(
+                            color: AppStyle.mainColor,
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(10),
                             ),
+                          ),
+                          child: isUpdate
+                              ? const Center(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : ElevatedButton(
+                                  onPressed: () {
+                                    updateData()
+                                        .whenComplete(
+                                          () => AnimatedSnackBar.material(
+                                            'Cập nhật dữ liệu thành công',
+                                            duration:
+                                                const Duration(seconds: 3),
+                                            type: AnimatedSnackBarType.success,
+                                            mobileSnackBarPosition:
+                                                MobileSnackBarPosition.top,
+                                          ).show(context),
+                                        )
+                                        .whenComplete(
+                                            () => Navigator.pop(context));
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppStyle.mainColor,
+                                    textStyle: const TextStyle(fontSize: 20),
+                                    fixedSize: Size(
+                                        size.width * 0.3, size.height * 0.05),
+                                    shape: const CircleBorder(),
+                                  ),
+                                  child: const Text(
+                                    'Cập nhật',
+                                  ),
+                                ),
+                        ),
+                        const SizedBox(
+                          width: 20,
+                        ),
+                        Container(
+                          margin: const EdgeInsets.symmetric(vertical: 10),
+                          width: size.width * 0.3,
+                          height: size.height * 0.05,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(10),
+                            ),
+                            border: Border.all(color: Colors.red, width: 2),
+                          ),
+                          child: isDelete
+                              ? const Center(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.red,
+                                  ),
+                                )
+                              : ElevatedButton(
+                                  onPressed: () {
+                                    deleteData()
+                                        .whenComplete(
+                                          () => Navigator.pop(context),
+                                        )
+                                        .whenComplete(
+                                          () => AnimatedSnackBar.material(
+                                            'Xóa phản ánh thành công',
+                                            duration:
+                                                const Duration(seconds: 3),
+                                            type: AnimatedSnackBarType.success,
+                                            mobileSnackBarPosition:
+                                                MobileSnackBarPosition.top,
+                                          ).show(context),
+                                        );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    textStyle: const TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.red,
+                                    ),
+                                    fixedSize: Size(
+                                        size.width * 0.3, size.height * 0.05),
+                                    shape: const CircleBorder(),
+                                    elevation: 0,
+                                  ),
+                                  child: const Text(
+                                    'Xóa',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ),
+                        ),
+                      ],
                     )
                   : Container(),
             ],

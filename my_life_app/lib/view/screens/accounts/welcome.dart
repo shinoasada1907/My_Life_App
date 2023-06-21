@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:my_life_app/models/style.dart';
 
@@ -81,10 +82,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                     elevation: 0,
                                     backgroundColor: AppStyle.mainColor,
                                     shape: const CircleBorder()),
-                                onPressed: () {
+                                onPressed: () async {
                                   loginScreen();
-                                  Navigator.pushReplacementNamed(
-                                      context, '/login_screen');
+                                  await FirebaseAuth.instance
+                                      .signOut()
+                                      .whenComplete(() =>
+                                          Navigator.pushReplacementNamed(
+                                              context, '/login_screen'));
                                 },
                                 child: const Center(
                                   child: Text(
@@ -119,10 +123,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                   backgroundColor: Colors.white,
                                   shape: const CircleBorder(),
                                 ),
-                                onPressed: () {
+                                onPressed: () async {
                                   loginScreen();
-                                  Navigator.pushReplacementNamed(
-                                      context, '/number_phone_screen');
+                                  await FirebaseAuth.instance
+                                      .signOut()
+                                      .whenComplete(() =>
+                                          Navigator.pushReplacementNamed(
+                                              context, '/number_phone_screen'));
                                 },
                                 child: Center(
                                   child: Text(

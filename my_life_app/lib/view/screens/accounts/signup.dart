@@ -5,7 +5,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:my_life_app/models/location.dart';
 import '../../../../models/style.dart';
 import '../../../../repository/auth/auth_repo.dart';
 import '../../widgets/auth_widget.dart';
@@ -25,6 +28,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   XFile? image, image1;
   ImagePicker imagePicker = ImagePicker();
   dynamic pickedImageError;
+  LocationAddress? address;
   List<XFile>? imageFileList = [];
   List<String> imageUrlList = [];
 
@@ -38,6 +42,62 @@ class _SignUpScreenState extends State<SignUpScreen> {
       FirebaseFirestore.instance.collection('UserAccount');
   CollectionReference profile =
       FirebaseFirestore.instance.collection('Profile');
+
+  //Get location device
+  Future<Position> _determinePosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Test if location services are enabled.
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled don't continue
+      // accessing the position and request users of the
+      // App to enable the location services.
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, next time you could try
+        // requesting permissions again (this is also where
+        // Android's shouldShowRequestPermissionRationale
+        // returned true. According to Android guidelines
+        // your App should show an explanatory UI now.
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+
+    // When we reach here, permissions are granted and we can
+    // continue accessing the position of the device.
+    return await Geolocator.getCurrentPosition();
+  }
+
+  Future<void> getLocation() async {
+    final location = await _determinePosition();
+    List<Placemark> placemarks =
+        await placemarkFromCoordinates(location.latitude, location.longitude);
+    print(placemarks);
+    Placemark place = placemarks[2];
+    print(place.toJson());
+    address = LocationAddress(
+      name: place.name.toString(),
+      street: place.thoroughfare.toString(),
+      ward: '',
+      district: place.subAdministrativeArea.toString(),
+      city: place.administrativeArea.toString(),
+      latitude: location.latitude.toString(),
+      longitude: location.longitude.toString(),
+    );
+  }
 
   //Pick image from camera
   Future<void> pickImageFromCamera() async {
@@ -182,7 +242,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Container(
                   margin: EdgeInsets.only(top: size.height * 0.02),
                   width: size.width * 0.8,
-                  height: size.height * 0.8,
+                  height: size.height * 0.83,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     boxShadow: [
@@ -313,25 +373,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {
+                        onTap: () async {
                           setState(() {
                             isLoading = true;
                           });
-                          signUpAccount(
-                            name!.text,
-                            cccd!.text,
-                            numberPhone!.text,
-                            FirebaseAuth.instance.currentUser!.uid,
-                          ).whenComplete(() {
-                            setState(() {
-                              name!.dispose();
-                              cccd!.dispose();
-                              numberPhone!.dispose();
-                              image = null;
-                              image1 = null;
-                              isLoading = false;
-                            });
-                          });
+                          await getLocation().whenComplete(
+                            () {
+                              signUpAccount(
+                                name!.text,
+                                cccd!.text,
+                                numberPhone!.text,
+                                FirebaseAuth.instance.currentUser!.uid,
+                              ).whenComplete(() {
+                                setState(() {
+                                  name!.dispose();
+                                  cccd!.dispose();
+                                  numberPhone!.dispose();
+                                  image = null;
+                                  image1 = null;
+                                  isLoading = false;
+                                });
+                              });
+                            },
+                          );
+
                           print(imageFileList.toString());
                         },
                         child: Container(

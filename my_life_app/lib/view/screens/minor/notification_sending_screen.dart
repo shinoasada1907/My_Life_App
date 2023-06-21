@@ -83,8 +83,13 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
       await storageRef
           .putString(dataUrl, format: PutStringFormat.dataUrl)
           .whenComplete(() async {
-        maskUrl = await storageRef.getDownloadURL();
+        await storageRef.getDownloadURL().then((value) {
+          maskUrl = value;
+        });
       });
+
+      print(imagePickedUrl);
+      print(maskUrl);
     } on FirebaseException catch (e) {
       print(e.toString());
     }
@@ -106,7 +111,7 @@ class _NotificationSendingScreenState extends State<NotificationSendingScreen> {
         'date': reflect.date,
         'description': reflect.description,
         'imagereflect': reflect.imageReflect,
-        'maskimage': reflect.imageSending.mask,
+        'maskimage': maskUrl.toString(),
         'percent': reflect.imageSending.percent,
         'status': reflect.imageSending.status,
         'latitude': reflect.location.latitude,

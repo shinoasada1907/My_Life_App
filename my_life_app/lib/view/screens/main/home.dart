@@ -66,6 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
           .then((DocumentSnapshot documentSnapshot) {
         if (documentSnapshot.exists) {
           data = documentSnapshot.data() as Map<String, dynamic>;
+          print('Document data: ${documentSnapshot.data()}');
         } else {
           print('Document không tồn tại');
         }
@@ -73,18 +74,6 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       print(e.toString());
     }
-    FirebaseFirestore.instance
-        .collection('Profile')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .get()
-        .then((DocumentSnapshot documentSnapshot) {
-      if (documentSnapshot.exists) {
-        data = documentSnapshot.data() as Map<String, dynamic>;
-        print('Document data: ${documentSnapshot.data()}');
-      } else {
-        print('Document does not exist on the database');
-      }
-    });
   }
 
   //Get image from camera
@@ -172,10 +161,19 @@ class _HomeScreenState extends State<HomeScreen> {
               context: context,
               message:
                   'Yêu cầu đối tượng được chụp là các cơ sở hạ tầng bị hư hại.',
-              onTapCancle: () {
-                pickImageFromCamera().whenComplete(() => sending());
+              onTapCancle: () => Navigator.pop(context),
+              onTapConfirm: () {
+                pickImageFromCamera().whenComplete(() {
+                  if (image != null) {
+                    print('Picked image');
+                    sending();
+                  } else {
+                    print('Exit camera');
+                    Navigator.pop(context);
+                  }
+                });
+                Navigator.pop(context);
               },
-              onTapConfirm: () => Navigator.pop(context),
               title: 'Cảnh báo',
             );
           },

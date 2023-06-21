@@ -2,7 +2,9 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:my_life_app/view/screens/accounts/signup.dart';
 import 'package:my_life_app/view/screens/accounts/verify.dart';
+import 'package:toast/toast.dart';
 import '../../../../models/style.dart';
 import '../../widgets/auth_widget.dart';
 
@@ -32,7 +34,7 @@ class _NumberPhoneState extends State<NumberPhone> {
   //Login with number phone
   Future<void> loginOTPPhone(String phone, bool processing) async {
     setState(() {
-      isLoading = true;
+      isLoading = false;
     });
     try {
       await FirebaseAuth.instance
@@ -50,12 +52,20 @@ class _NumberPhoneState extends State<NumberPhone> {
       )
           .whenComplete(() {
         Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => VerifySMS(
-                processing: processing,
-              ),
-            ));
+          context,
+          MaterialPageRoute(
+            builder: (context) => SignUpScreen(
+              numberPhone: FirebaseAuth.instance.currentUser!.phoneNumber,
+            ),
+          ),
+        );
+        // Navigator.push(
+        //     context,
+        //     MaterialPageRoute(
+        //       builder: (context) => VerifySMS(
+        //         processing: processing,
+        //       ),
+        //     ));
       });
     } catch (e) {
       print('Error: ${e.toString()}');
@@ -64,6 +74,7 @@ class _NumberPhoneState extends State<NumberPhone> {
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     var size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: AppStyle.mainColor,
@@ -130,9 +141,19 @@ class _NumberPhoneState extends State<NumberPhone> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        loginOTPPhone(numberphone!.text, false);
-                        // context.read<AuthCubit>().loginOTPPhone(
-                        //     context, numberphone!.text, false);
+                        if (numberphone!.text != '') {
+                          setState(() {
+                            isLoading = true;
+                          });
+                          loginOTPPhone(numberphone!.text, false);
+                          // context.read<AuthCubit>().loginOTPPhone(
+                          //     context, numberphone!.text, false);
+                        } else {
+                          Toast.show('Xin hãy nhập số điện thoại!',
+                              duration: Toast.lengthShort,
+                              backgroundColor: Colors.grey,
+                              gravity: Toast.bottom);
+                        }
                       },
                       child: Container(
                         margin: EdgeInsets.only(top: size.height * 0.015),

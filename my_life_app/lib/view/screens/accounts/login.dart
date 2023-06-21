@@ -9,6 +9,7 @@ import 'package:my_life_app/models/inherited_widget.dart';
 import 'package:my_life_app/models/style.dart';
 import 'package:my_life_app/view/screens/accounts/signup.dart';
 import 'package:my_life_app/view/screens/accounts/verify.dart';
+import 'package:toast/toast.dart';
 
 import '../../../../models/location.dart';
 import '../../widgets/auth_widget.dart';
@@ -24,7 +25,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   FirebaseAuth auth = FirebaseAuth.instance;
 
-  bool isLoading = false;
+  bool isLoadingGoogle = false;
+  bool isLoadingPhone = false;
   LocationAddress? address;
   TextEditingController? phone;
 
@@ -32,7 +34,6 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     phone = TextEditingController();
-    isLoading = false;
   }
 
   //Get location device
@@ -91,27 +92,71 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  Future<void> _signInWithCredential(PhoneAuthCredential credential) async {
+    try {
+      final UserCredential userCredential =
+          await auth.signInWithCredential(credential);
+      final User? user = userCredential.user;
+      print(
+          'Successfully signed in with phone number: ${user?.phoneNumber}. ${user?.uid}');
+      // TODO: Navigate to home screen
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to sign in with phone number: ${e.toString()}'),
+        ),
+      );
+    }
+  }
+
   //Login with number phone
   Future<void> loginOTPPhone(String phone, bool processing) async {
+    setState(() {
+      isLoadingPhone = false;
+    });
     try {
       await FirebaseAuth.instance
           .verifyPhoneNumber(
         phoneNumber: '+84${phone.toString()}',
         verificationCompleted: (PhoneAuthCredential credential) async {
-          await auth.signInWithCredential(credential);
+          _signInWithCredential(credential);
         },
-        verificationFailed: (FirebaseAuthException e) {},
+        verificationFailed: (FirebaseAuthException e) {
+          print('Failed to verify phone number: ${e.message}');
+        },
         codeSent: (String verificationId, int? resendToken) {
           VerifySMS.verifyID = verificationId;
         },
         codeAutoRetrievalTimeout: (String verificationId) {},
       )
           .whenComplete(() {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => HomeScreen(location: address),
-            ));
+        FirebaseFirestore.instance
+            .collection('UserAccount')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .get()
+            .then((DocumentSnapshot snapshot) {
+          if (snapshot.exists) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomeScreen(location: address),
+                ));
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SignUpScreen(
+                  numberPhone: FirebaseAuth.instance.currentUser!.phoneNumber,
+                ),
+              ),
+            );
+          }
+        });
+        // Navigator.push(
+        //     context,
+        //     MaterialPageRoute(
+        //       builder: (context) => HomeScreen(location: address),
+        //     ));
       });
     } catch (e) {
       print('Error: ${e.toString()}');
@@ -138,6 +183,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> loginWithGoogle(String uid) async {
+    setState(() {
+      isLoadingGoogle = false;
+    });
     FirebaseFirestore.instance
         .collection('UserAccount')
         .doc(uid)
@@ -160,13 +208,11 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     });
-    setState(() {
-      isLoading = false;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
+    ToastContext().init(context);
     var size = MediaQuery.of(context).size;
     return MyInheritedWidget(
       location: address,
@@ -230,7 +276,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: TextFormField(
                           controller: phone,
                           keyboardType: TextInputType.phone,
-                          validator: (value) {},
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Xin hãy nhập số điện thoại';
+                            }
+                          },
                           decoration: textFormDecoration.copyWith(),
                         ),
                       ),
@@ -242,7 +292,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: AppStyle.mainColor,
                           borderRadius: BorderRadius.circular(25),
                         ),
-                        child: isLoading
+                        child: isLoadingPhone
                             ? const Center(
                                 child: CircularProgressIndicator(
                                   color: Colors.white,
@@ -255,12 +305,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                   elevation: 0,
                                 ),
                                 onPressed: () async {
-                                  setState(() {
-                                    isLoading = true;
-                                  });
-                                  await getLocation().whenComplete(
-                                    () => loginOTPPhone(phone!.text, true),
-                                  );
+                                  if (phone!.text != '') {
+                                    setState(() {
+                                      isLoadingPhone = true;
+                                    });
+                                    await getLocation().whenComplete(
+                                      () => loginOTPPhone(phone!.text, true),
+                                    );
+                                  } else {
+                                    Toast.show('Xin hãy nhập số điện thoại!',
+                                        duration: Toast.lengthShort,
+                                        backgroundColor: Colors.grey,
+                                        gravity: Toast.bottom);
+                                  }
                                 },
                                 child: const Center(
                                   child: Text(
@@ -293,7 +350,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             color: AppStyle.mainColor,
                           ),
                         ),
-                        child: isLoading
+                        child: isLoadingGoogle
                             ? Center(
                                 child: CircularProgressIndicator(
                                   color: AppStyle.mainColor,
@@ -307,7 +364,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 onPressed: () async {
                                   setState(() {
-                                    isLoading = true;
+                                    isLoadingGoogle = true;
                                   });
                                   getLocation().whenComplete(
                                     () => signInWithGoogle().whenComplete(() {

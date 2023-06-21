@@ -32,9 +32,13 @@ class _VerifySMSState extends State<VerifySMS> {
     setState(() {
       isLoading = true;
     });
-    PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: verifyID.toString(), smsCode: code.toString());
-    await auth.signInWithCredential(credential);
+    try {
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+          verificationId: verifyID.toString(), smsCode: code.toString());
+      await auth.signInWithCredential(credential);
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   Future<void> verify(
