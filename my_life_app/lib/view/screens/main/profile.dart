@@ -131,7 +131,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const InformationScreen(),
+                                builder: (context) => InformationScreen(
+                                  data: data,
+                                ),
                               ));
                         },
                       ),

@@ -10,7 +10,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:my_life_app/models/location.dart';
 import '../../../../models/style.dart';
-import '../../../../repository/auth/auth_repo.dart';
 import '../../widgets/auth_widget.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:path/path.dart' as path;
@@ -140,7 +139,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       } else {
         print('Mảng rỗng');
       }
-      AuthRepository.upImage(imageFileList!);
+      // AuthRepository.upImage(imageFileList!);
     } catch (e) {
       print(e.toString());
     }
@@ -161,7 +160,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       'name': name,
       'cccd': id,
       'numberphone': numberPhone,
-      'image': imageUrlList,
+      'image': imageUrlList ?? '',
       'uid': userId,
     });
   }

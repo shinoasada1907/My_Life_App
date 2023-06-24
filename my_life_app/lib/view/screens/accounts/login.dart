@@ -99,7 +99,6 @@ class _LoginScreenState extends State<LoginScreen> {
       final User? user = userCredential.user;
       print(
           'Successfully signed in with phone number: ${user?.phoneNumber}. ${user?.uid}');
-      // TODO: Navigate to home screen
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
