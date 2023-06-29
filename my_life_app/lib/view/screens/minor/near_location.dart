@@ -93,6 +93,11 @@ class _NearLocationUserState extends State<NearLocationUser> {
                 listreflect1.add(list);
               }
             }
+            listreflect1.sort(
+              (a, b) => DateFormat('dd/MM/yyy')
+                  .parse(b.get('date'))
+                  .compareTo(DateFormat('dd/MM/yyy').parse(a.get('date'))),
+            );
             documents = listreflect1;
           }
 
